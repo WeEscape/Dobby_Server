@@ -1,0 +1,7 @@
+services:
+  dobby_api:
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./api/dist:/app/api/dist
+    command: "npm run development"

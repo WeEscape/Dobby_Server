@@ -1,0 +1,5 @@
+services:
+  dobby_api:
+    environment:
+      - NODE_ENV=production
+    command: "npm run production"

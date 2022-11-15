@@ -1,0 +1,9 @@
+docs
+node_modules
+src
+test
+*.js
+*.md
+Dockerfile
+.prettierrc
+tsconfig.json
