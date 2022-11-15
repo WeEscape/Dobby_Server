@@ -1,0 +1,21 @@
+.idea/
+.vscode/
+node_modules/
+build/
+tmp/
+temp/
+dist/
+
+config/
+mariadb/initdb.d/create-user.sql
+
+.DS_Store
+
+# Ignore log files
+logs
+
+# Ignore env
+.env
+.env.dev
+.env.prod
+
