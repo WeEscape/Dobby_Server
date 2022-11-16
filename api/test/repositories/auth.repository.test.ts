@@ -1,9 +1,9 @@
 import { testConatiner } from '../server';
-import { registerData } from '../datas/register.data';
+import { registerData } from '../datas/auth/register.data';
 import { TestGenerator } from './base/generator';
 import { User } from '../../src/entities/user.entity';
 
-export const testAuthRepository = testConatiner.getAuthRepository();
+const testAuthRepository = testConatiner.getAuthRepository();
 
 describe('Auth Repository', () => {
   beforeAll(() => {
@@ -18,12 +18,6 @@ describe('Auth Repository', () => {
       expect(user.user_name).toBe(registerData.kakao.user_name);
       expect(user.profile_image_url).toBeNull();
       expect(user.profile_color).toBe(registerData.kakao.profile_color);
-      expect(user.is_connect).toBe(0);
-      expect(user.last_connected_at).toBeNull();
-      expect(user.apple_refresh_token).toBeNull();
-      expect(user.created_at).toBeDefined();
-      expect(user.updated_at).toBeDefined();
-      expect(user.deleted_at).toBeNull();
     });
   });
 
@@ -112,6 +106,7 @@ describe('Auth Repository', () => {
       const user = <User>await testAuthRepository.findByUserId('US111111111111');
 
       expect(user.social_id).toBeNull();
+      expect(user.deleted_at).toBeDefined();
     });
   });
 

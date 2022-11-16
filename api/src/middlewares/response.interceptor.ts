@@ -13,5 +13,5 @@ export const responseInterceptor = (req: Request, result?: unknown): unknown => 
   logger.http(`Response: ${JSON.stringify(response)}`);
   logger.http('----------------------------------------');
 
-  return result;
+  return { data: result };
 };

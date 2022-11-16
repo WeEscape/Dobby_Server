@@ -1,7 +1,7 @@
 import supertest from 'supertest';
 import { errorMessage } from '../../src/utils/message.util';
-import { loginData } from '../datas/login.data';
-import { registerData } from '../datas/register.data';
+import { loginData } from '../datas/auth/login.data';
+import { registerData } from '../datas/auth/register.data';
 import { TestGenerator } from '../repositories/base/generator';
 import { server, testConatiner } from '../server';
 import { sleep } from '../utils/sleep';
@@ -23,21 +23,18 @@ describe('Auth', () => {
       const { statusCode, body } = await request.post('/api/auth/register').send(registerData.kakao);
 
       expect(statusCode).toBe(200);
-      expect(body.user.social_id).toBe(registerData.kakao.social_id);
-      expect(body.user.social_type).toBe(registerData.kakao.social_type);
-      expect(body.user.user_name).toBe(registerData.kakao.user_name);
-      expect(body.user.profile_color).toBe(registerData.kakao.profile_color);
+      expect(body.data.user.social_type).toBe(registerData.kakao.social_type);
+      expect(body.data.user.user_name).toBe(registerData.kakao.user_name);
+      expect(body.data.user.profile_color).toBe(registerData.kakao.profile_color);
     });
 
     it('apple', async () => {
       const { statusCode, body } = await request.post('/api/auth/register').send(registerData.apple);
 
       expect(statusCode).toBe(200);
-      expect(body.user.social_id).toBe(registerData.apple.social_id);
-      expect(body.user.social_type).toBe(registerData.apple.social_type);
-      expect(body.user.user_name).toBe(registerData.apple.user_name);
-      expect(body.user.profile_color).toBe(registerData.apple.profile_color);
-      expect(body.user.apple_refresh_token).toBe('apple refresh token');
+      expect(body.data.user.social_type).toBe(registerData.apple.social_type);
+      expect(body.data.user.user_name).toBe(registerData.apple.user_name);
+      expect(body.data.user.profile_color).toBe(registerData.apple.profile_color);
     });
 
     it('parameter error', async () => {
@@ -64,11 +61,11 @@ describe('Auth', () => {
       const { statusCode, body } = await request.post('/api/auth/login').send(loginData.success);
 
       expect(statusCode).toBe(200);
-      expect(typeof body.access_token).toBe('string');
-      expect(typeof body.refresh_token).toBe('string');
+      expect(typeof body.data.access_token).toBe('string');
+      expect(typeof body.data.refresh_token).toBe('string');
 
-      access_token = body.access_token;
-      refresh_token = body.refresh_token;
+      access_token = body.data.access_token;
+      refresh_token = body.data.refresh_token;
     });
 
     it('parameter error', async () => {
@@ -101,10 +98,10 @@ describe('Auth', () => {
       const { statusCode, body } = await request.post('/api/auth/tokens').send({ refresh_token });
 
       expect(statusCode).toBe(200);
-      expect(typeof body.access_token).toBe('string');
-      expect(typeof body.refresh_token).toBe('string');
+      expect(typeof body.data.access_token).toBe('string');
+      expect(typeof body.data.refresh_token).toBe('string');
 
-      refresh_token = body.refresh_token;
+      refresh_token = body.data.refresh_token;
     });
 
     it('parameter error', async () => {

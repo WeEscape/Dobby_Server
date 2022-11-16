@@ -1,7 +1,6 @@
-import { LoginDto } from '../dtos/login.dto';
-import { RegisterDto } from '../dtos/register.dto';
+import { LoginDto } from '../dtos/auth/login.dto';
+import { RegisterDto } from '../dtos/auth/register.dto';
 import { User } from '../entities/user.entity';
-import { UserRefreshToken } from '../entities/userRefreshToken.entity';
 import { BadRequestError } from '../exceptions/BadRequest.exception';
 import { NotFoundError } from '../exceptions/NotFound.exception';
 import { AuthRepository } from '../repositories/auth.repository';

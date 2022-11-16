@@ -1,7 +1,7 @@
 import { Router } from 'express';
-import { GetTokens } from '../dtos/getTokens.dto';
-import { LoginDto } from '../dtos/login.dto';
-import { RegisterDto } from '../dtos/register.dto';
+import { GetTokens } from '../dtos/auth/getTokens.dto';
+import { LoginDto } from '../dtos/auth/login.dto';
+import { RegisterDto } from '../dtos/auth/register.dto';
 import { authGuard } from '../middlewares/auth.guard';
 import { responseInterceptor } from '../middlewares/response.interceptor';
 import { validateBody } from '../middlewares/validateBody.pipe';

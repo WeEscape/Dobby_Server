@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsOptional, IsString, ValidateIf } from 'class-validator';
-import { ProfileColor, SocialType } from '../entities/user.entity';
+import { ProfileColor, SocialType } from '../../entities/user.entity';
 
 export class RegisterDto {
   @IsNotEmpty()

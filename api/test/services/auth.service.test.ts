@@ -1,11 +1,11 @@
 import { errorMessage } from '../../src/utils/message.util';
-import { loginData } from '../datas/login.data';
-import { registerData } from '../datas/register.data';
-import { testAuthRepository } from '../repositories/auth.repository.test';
+import { loginData } from '../datas/auth/login.data';
+import { registerData } from '../datas/auth/register.data';
 import { TestGenerator } from '../repositories/base/generator';
 import { testConatiner } from '../server';
 import { sleep } from '../utils/sleep';
 
+const testAuthRepository = testConatiner.getAuthRepository();
 const testAuthService = testConatiner.getAuthService();
 
 let refresh_token: string;
@@ -20,7 +20,6 @@ describe('Auth Service', () => {
       const result = await testAuthService.register(registerData.kakao);
 
       expect(result.user.user_id).toBe('US111111111111');
-      expect(result.user.social_id).toBe(registerData.kakao.social_id);
       expect(result.user.social_type).toBe(registerData.kakao.social_type);
       expect(result.user.user_name).toBe(registerData.kakao.user_name);
       expect(result.user.profile_color).toBe(registerData.kakao.profile_color);
@@ -30,11 +29,9 @@ describe('Auth Service', () => {
       const result = await testAuthService.register(registerData.apple);
 
       expect(result.user.user_id).toBe('US222222222222');
-      expect(result.user.social_id).toBe(registerData.apple.social_id);
       expect(result.user.social_type).toBe(registerData.apple.social_type);
       expect(result.user.user_name).toBe(registerData.apple.user_name);
       expect(result.user.profile_color).toBe(registerData.apple.profile_color);
-      expect(result.user.apple_refresh_token).toBe('apple refresh token');
     });
 
     it('duplicate social id and social type', async () => {
@@ -46,13 +43,7 @@ describe('Auth Service', () => {
 
   describe('login', () => {
     it('success', async () => {
-      const result = await testAuthService.login(
-        {
-          social_id: loginData.success.social_id,
-          social_type: loginData.success.social_type,
-        },
-        '127.0.0.1',
-      );
+      const result = await testAuthService.login(loginData.success, '127.0.0.1');
 
       expect(typeof result.access_token).toBe('string');
       expect(typeof result.refresh_token).toBe('string');

@@ -1,4 +1,4 @@
-import { RegisterDto } from '../../src/dtos/register.dto';
+import { RegisterDto } from '../../../src/dtos/auth/register.dto';
 
 export const registerData: { [key: string]: RegisterDto } = {
   kakao: {

@@ -1,5 +1,5 @@
 import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
-import { SocialType } from '../entities/user.entity';
+import { SocialType } from '../../entities/user.entity';
 
 export class LoginDto {
   @IsNotEmpty()

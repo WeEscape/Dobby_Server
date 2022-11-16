@@ -57,7 +57,17 @@ export class AuthRepository extends RdbmsRepository {
       },
     ]);
 
-    return <User>await this.findBySocialIdAndSocialType(options.social_id, options.social_type);
+    return <User>(
+      await this.findBySocialIdAndSocialType(options.social_id, options.social_type, {
+        select: [
+          'USERS.user_id',
+          'USERS.social_type',
+          'USERS.user_name',
+          'USERS.profile_image_url',
+          'USERS.profile_color',
+        ],
+      })
+    );
   }
 
   /** 회원 접속 */
@@ -84,10 +94,12 @@ export class AuthRepository extends RdbmsRepository {
 
   /** 회원 탈퇴 */
   async deleteUser(options: { user_id: string }): Promise<void> {
+    const now = new Date();
+
     await this.sendQuerys([
       {
-        query: `UPDATE USERS SET social_id = NULL, social_type = NULL, user_name = NULL, profile_image_url = NULL, profile_color = NULL, is_connect = 0, last_connected_at = NULL, apple_refresh_token = NULL WHERE user_id = ?;`,
-        params: [options.user_id],
+        query: `UPDATE USERS SET social_id = NULL, social_type = NULL, user_name = NULL, profile_image_url = NULL, profile_color = NULL, is_connect = 0, last_connected_at = NULL, apple_refresh_token = NULL, deleted_at = ? WHERE user_id = ?;`,
+        params: [now, options.user_id],
       },
       {
         query: `DELETE FROM USERS_REFRESH_TOKENS WHERE user_id = ?;`,

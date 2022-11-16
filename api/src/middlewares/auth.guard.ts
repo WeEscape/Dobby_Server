@@ -18,7 +18,7 @@ export const authGuard = async (req: Request, res: Response, next: NextFunction)
     if (err.message === 'jwt expired') {
       return next(new UnauthorizedError('acceess_token expired'));
     } else {
-      return next(new UnauthorizedError('acceess_token expiinvalidred'));
+      return next(new UnauthorizedError('acceess_token invalid'));
     }
   }
 };

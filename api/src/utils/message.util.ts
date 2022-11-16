@@ -3,6 +3,7 @@ import { parameter } from './parameter.util';
 export const successMessage = {};
 
 export const errorMessage = {
+  forbidden: '권한이 없습니다.',
   existUser: '이미 가입된 정보입니다.',
   notFoundUser: '가입된 회원이 없습니다.',
   expiredRefreshToken: 'refresh_token expired',
