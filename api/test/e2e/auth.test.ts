@@ -58,7 +58,7 @@ describe('Auth', () => {
 
   describe('login', () => {
     it('success', async () => {
-      const { statusCode, body } = await request.post('/api/auth/login').send(loginData.success);
+      const { statusCode, body } = await request.post('/api/auth/login').send(loginData.kakao);
 
       expect(statusCode).toBe(200);
       expect(typeof body.data.access_token).toBe('string');
@@ -71,7 +71,7 @@ describe('Auth', () => {
     it('parameter error', async () => {
       const { statusCode, body } = await request
         .post('/api/auth/login')
-        .send({ ...loginData.success, social_type: 'github' });
+        .send({ ...loginData.kakao, social_type: 'github' });
 
       expect(statusCode).toBe(400);
       expect(body.message).toBe(errorMessage.invalidParameter('social_type'));

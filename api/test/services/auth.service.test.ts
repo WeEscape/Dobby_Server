@@ -43,7 +43,7 @@ describe('Auth Service', () => {
 
   describe('login', () => {
     it('success', async () => {
-      const result = await testAuthService.login(loginData.success, '127.0.0.1');
+      const result = await testAuthService.login(loginData.kakao, '127.0.0.1');
 
       expect(typeof result.access_token).toBe('string');
       expect(typeof result.refresh_token).toBe('string');

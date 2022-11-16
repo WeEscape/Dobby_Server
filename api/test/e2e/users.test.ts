@@ -16,7 +16,7 @@ describe('Users', () => {
   beforeAll(async () => {
     (<TestGenerator>testConatiner.getGenerator()).resetCount();
     await request.post('/api/auth/register').send(registerData.kakao);
-    const { body } = await request.post('/api/auth/login').send(loginData.success);
+    const { body } = await request.post('/api/auth/login').send(loginData.kakao);
 
     access_token = body.data.access_token;
   });

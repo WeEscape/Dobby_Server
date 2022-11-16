@@ -1,4 +1,3 @@
-import { User } from '../../src/entities/user.entity';
 import { UserInfo } from '../../src/interfaces/userInfo.interface';
 import { registerData } from '../datas/auth/register.data';
 import { updateUserData } from '../datas/users/updateUser.data';

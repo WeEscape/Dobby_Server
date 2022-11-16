@@ -15,6 +15,7 @@ export class AuthService {
     const existUser = await this.authRepository.findBySocialIdAndSocialType(
       registerDto.social_id,
       registerDto.social_type,
+      { select: ['USERS.user_id'] },
     );
     if (existUser) {
       throw new BadRequestError(errorMessage.existUser);
@@ -34,7 +35,9 @@ export class AuthService {
   }
 
   async login(loginDto: LoginDto, ip: string): Promise<{ access_token: string; refresh_token: string }> {
-    const user = await this.authRepository.findBySocialIdAndSocialType(loginDto.social_id, loginDto.social_type);
+    const user = await this.authRepository.findBySocialIdAndSocialType(loginDto.social_id, loginDto.social_type, {
+      select: ['USERS.user_id'],
+    });
     if (!user) {
       throw new NotFoundError(errorMessage.notFoundUser);
     }
@@ -53,14 +56,18 @@ export class AuthService {
   }
 
   async withdraw(user_id: string): Promise<void> {
-    const user = <User>await this.authRepository.findByUserId(user_id);
+    const user = <User>await this.authRepository.findByUserId(user_id, {
+      select: ['USERS.social_id', 'USERS.social_type', 'USERS.apple_refresh_token'],
+    });
 
     await this.socialService.withdrawFromSocial(user);
     await this.authRepository.deleteUser({ user_id });
   }
 
   async getTokens(token: string, ip: string): Promise<{ access_token: string; refresh_token: string }> {
-    const user = await this.authRepository.findUserByRefreshToken(token, ip);
+    const user = await this.authRepository.findUserByRefreshToken(token, ip, {
+      select: ['USERS.user_id', 'USERS_REFRESH_TOKENS.expired_at'],
+    });
     if (!user) {
       throw new BadRequestError(errorMessage.invalidParameter('refresh_token'));
     }

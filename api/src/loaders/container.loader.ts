@@ -3,8 +3,10 @@
 import { AuthRepository } from '../repositories/auth.repository';
 import { Generator } from '../repositories/base/generator';
 import { RdbmsConfig } from '../repositories/base/rdbms.repository';
+import { GroupsRepository } from '../repositories/groups.repository';
 import { UsersRepository } from '../repositories/users.repository';
 import { AuthService } from '../services/auth.service';
+import { GroupsService } from '../services/groups.service';
 import { SocialService } from '../services/social.service';
 import { UsersService } from '../services/users.service';
 
@@ -12,9 +14,11 @@ export class Container {
   protected generator: Generator;
   authRepository: AuthRepository;
   usersRepository: UsersRepository;
+  groupsRepository: GroupsRepository;
   socialService: SocialService;
   authService: AuthService;
   usersService: UsersService;
+  groupsService: GroupsService;
 
   constructor(private readonly rdbmsConfig: RdbmsConfig) {}
 
@@ -42,6 +46,14 @@ export class Container {
     return this.usersRepository;
   }
 
+  getGroupsRepository(): GroupsRepository {
+    if (!this.groupsRepository) {
+      this.groupsRepository = new GroupsRepository(this.rdbmsConfig, this.getGenerator());
+    }
+
+    return this.groupsRepository;
+  }
+
   getSocialService(): SocialService {
     if (!this.socialService) {
       this.socialService = new SocialService();
@@ -64,5 +76,13 @@ export class Container {
     }
 
     return this.usersService;
+  }
+
+  getGroupsService(): GroupsService {
+    if (!this.groupsService) {
+      this.groupsService = new GroupsService(this.getGroupsRepository());
+    }
+
+    return this.groupsService;
   }
 }

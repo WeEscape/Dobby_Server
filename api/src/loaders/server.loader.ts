@@ -9,6 +9,8 @@ import { logger } from '../utils/logger.util';
 import { Container } from './container.loader';
 import { authRouter } from '../routers/auth.router';
 import { usersRouter } from '../routers/users.router';
+import { authGuard } from '../middlewares/auth.guard';
+import { groupsRouter } from '../routers/groups.router';
 
 export class ServerLoader {
   private app: express.Express;
@@ -51,7 +53,8 @@ export class ServerLoader {
   /** routing 설정 */
   setRouters(): void {
     this.app.use('/api/auth', authRouter(this.container.getAuthService()));
-    this.app.use('/api/users', usersRouter(this.container.getUsersService()));
+    this.app.use('/api/users', authGuard, usersRouter(this.container.getUsersService()));
+    this.app.use('/api/groups', authGuard, groupsRouter(this.container.getGroupsService()));
 
     // 존재하지 않는 api 주소 설정
     this.app.use('*', (req, res, next) => {

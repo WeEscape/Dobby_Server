@@ -9,7 +9,11 @@ export class AuthRepository extends RdbmsRepository {
 
     return (<User[][] | []>await this.sendQuerys([
       {
-        query: `SELECT ${selectField} FROM USERS WHERE user_id = ?;`,
+        query: `
+          SELECT ${selectField}
+          FROM USERS
+          WHERE user_id = ?;
+        `,
         params: [user_id],
       },
     ]))[0][0];
@@ -25,7 +29,12 @@ export class AuthRepository extends RdbmsRepository {
 
     return (<User[][] | []>await this.sendQuerys([
       {
-        query: `SELECT ${selectField} FROM USERS WHERE social_id = ? AND social_type = ?;`,
+        query: `
+          SELECT ${selectField}
+          FROM USERS
+          WHERE social_id = ?
+            AND social_type = ?;
+        `,
         params: [social_id, social_type],
       },
     ]))[0][0];
@@ -44,7 +53,25 @@ export class AuthRepository extends RdbmsRepository {
 
     await this.sendQuerys([
       {
-        query: `INSERT INTO USERS(user_id, social_id, social_type, user_name, profile_image_url, profile_color, apple_refresh_token) VALUES (?, ?, ?, ?, ?, ?, ?);`,
+        query: `
+          INSERT INTO USERS(
+            user_id,
+            social_id,
+            social_type,
+            user_name,
+            profile_image_url,
+            profile_color,
+            apple_refresh_token
+          ) VALUES (
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?,
+            ?
+          );
+        `,
         params: [
           userId,
           options.social_id,
@@ -57,24 +84,26 @@ export class AuthRepository extends RdbmsRepository {
       },
     ]);
 
-    return <User>(
-      await this.findBySocialIdAndSocialType(options.social_id, options.social_type, {
-        select: [
-          'USERS.user_id',
-          'USERS.social_type',
-          'USERS.user_name',
-          'USERS.profile_image_url',
-          'USERS.profile_color',
-        ],
-      })
-    );
+    return <User>await this.findBySocialIdAndSocialType(options.social_id, options.social_type, {
+      select: [
+        'USERS.user_id',
+        'USERS.social_type',
+        'USERS.user_name',
+        'USERS.profile_image_url',
+        'USERS.profile_color',
+      ],
+    });
   }
 
   /** 회원 접속 */
   async connectUser(options: { user_id: string }): Promise<void> {
     await this.sendQuerys([
       {
-        query: `UPDATE USERS SET is_connect = 1 WHERE user_id = ?;`,
+        query: `
+          UPDATE USERS SET
+            is_connect = 1
+          WHERE user_id = ?;
+        `,
         params: [options.user_id],
       },
     ]);
@@ -86,7 +115,12 @@ export class AuthRepository extends RdbmsRepository {
 
     await this.sendQuerys([
       {
-        query: `UPDATE USERS SET is_connect = 0, last_connected_at = ? WHERE user_id = ?;`,
+        query: `
+          UPDATE USERS SET
+            is_connect = 0,
+            last_connected_at = ?
+          WHERE user_id = ?;
+        `,
         params: [now, options.user_id],
       },
     ]);
@@ -98,19 +132,30 @@ export class AuthRepository extends RdbmsRepository {
 
     await this.sendQuerys([
       {
-        query: `UPDATE USERS SET social_id = NULL, social_type = NULL, user_name = NULL, profile_image_url = NULL, profile_color = NULL, is_connect = 0, last_connected_at = NULL, apple_refresh_token = NULL, deleted_at = ? WHERE user_id = ?;`,
+        query: `
+          UPDATE USERS SET
+            social_id = NULL,
+            social_type = NULL,
+            user_name = NULL,
+            profile_image_url = NULL,
+            profile_color = NULL,
+            is_connect = 0,
+            last_connected_at = NULL,
+            apple_refresh_token = NULL,
+            deleted_at = ?
+          WHERE user_id = ?;
+        `,
         params: [now, options.user_id],
       },
       {
-        query: `DELETE FROM USERS_REFRESH_TOKENS WHERE user_id = ?;`,
-        params: [options.user_id],
-      },
-      {
-        query: `DELETE FROM GROUPS_USERS WHERE user_id = ?;`,
-        params: [options.user_id],
-      },
-      {
-        query: `DELETE FROM TASKS_USERS WHERE user_id = ?;`,
+        query: `
+          DELETE USERS_REFRESH_TOKENS, GROUPS_USERS, TASKS_USERS
+          FROM USERS
+          LEFT JOIN USERS_REFRESH_TOKENS USING (user_id)
+          LEFT JOIN GROUPS_USERS USING(user_id)
+          LEFT JOIN TASKS_USERS USING(user_id)
+          WHERE user_id = ?;
+        `,
         params: [options.user_id],
       },
     ]);
@@ -124,7 +169,21 @@ export class AuthRepository extends RdbmsRepository {
       { query: 'SET @expired_at = ?;', params: [expiredAt] },
       { query: 'SET @token = ?;', params: [options.token] },
       {
-        query: `INSERT INTO USERS_REFRESH_TOKENS (user_id, ip, expired_at, token) VALUES (?, ?, @expired_at, @token) ON DUPLICATE KEY UPDATE expired_at = @expired_at, token = @token;`,
+        query: `
+          INSERT INTO USERS_REFRESH_TOKENS(
+            user_id,
+            ip,
+            expired_at,
+            token
+          ) VALUES (
+            ?,
+            ?,
+            @expired_at,
+            @token
+          ) ON DUPLICATE KEY UPDATE
+            expired_at = @expired_at,
+            token = @token;
+        `,
         params: [options.user_id, options.ip],
       },
     ]);
@@ -140,7 +199,13 @@ export class AuthRepository extends RdbmsRepository {
 
     return (<(User & UserRefreshToken)[][] | []>await this.sendQuerys([
       {
-        query: `SELECT ${selectField} FROM USERS LEFT JOIN USERS_REFRESH_TOKENS USING(user_id) WHERE ip = ? AND token = ?;`,
+        query: `
+          SELECT ${selectField}
+          FROM USERS
+          LEFT JOIN USERS_REFRESH_TOKENS USING(user_id)
+          WHERE ip = ?
+            AND token = ?;
+        `,
         params: [ip, token],
       },
     ]))[0][0];

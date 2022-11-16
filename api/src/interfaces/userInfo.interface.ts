@@ -4,5 +4,6 @@ export interface UserInfo {
   user_name: string | null;
   profile_image_url: string | null;
   profile_color: string | null;
-  group_ids: string | null;
+  is_connect: number;
+  group_ids: string[] | null;
 }

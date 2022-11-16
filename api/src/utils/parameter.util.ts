@@ -6,4 +6,6 @@ export const parameter: { [key: string]: string } = {
   profile_color: 'profile_color',
   authorize_code: 'authorize_code',
   refresh_token: 'refresh_token',
+  group_title: 'group_title',
+  invite_code: 'invite_code',
 };

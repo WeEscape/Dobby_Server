@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { UpdateUserDto } from '../dtos/users/updateUser.dto';
 import { ForbiddenError } from '../exceptions/Forbidden.exception';
-import { authGuard } from '../middlewares/auth.guard';
 import { responseInterceptor } from '../middlewares/response.interceptor';
 import { validateBody } from '../middlewares/validateBody.pipe';
 import { UsersService } from '../services/users.service';
@@ -11,7 +10,7 @@ export const usersRouter = (usersService: UsersService) => {
   const router = Router();
 
   /** 회원 본인 조회 */
-  router.get('/my', authGuard, async (req, res, next) => {
+  router.get('/my', async (req, res, next) => {
     try {
       const user_id = req.user?.user_id;
 
@@ -24,7 +23,7 @@ export const usersRouter = (usersService: UsersService) => {
   });
 
   /** id별 회원 조회 */
-  router.get('/:user_id', authGuard, async (req, res, next) => {
+  router.get('/:user_id', async (req, res, next) => {
     try {
       const user_id = req.params.user_id;
 
@@ -37,7 +36,7 @@ export const usersRouter = (usersService: UsersService) => {
   });
 
   /** 회원 수정 */
-  router.put('/:user_id', authGuard, validateBody(UpdateUserDto), async (req, res, next) => {
+  router.put('/:user_id', validateBody(UpdateUserDto), async (req, res, next) => {
     try {
       const user_id = req.user?.user_id;
       if (user_id !== req.params.user_id) {
