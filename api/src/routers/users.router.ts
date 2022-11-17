@@ -22,7 +22,7 @@ export const usersRouter = (usersService: UsersService) => {
     }
   });
 
-  /** id별 회원 조회 */
+  /** 회원 조회 */
   router.get('/:user_id', async (req, res, next) => {
     try {
       const user_id = req.params.user_id;

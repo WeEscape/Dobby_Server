@@ -2,7 +2,6 @@ import supertest from 'supertest';
 import { errorMessage } from '../../src/utils/message.util';
 import { loginData } from '../datas/auth/login.data';
 import { registerData } from '../datas/auth/register.data';
-import { updateUserData } from '../datas/users/updateUser.data';
 import { TestGenerator } from '../repositories/base/generator';
 import { server, testConatiner } from '../server';
 
@@ -58,7 +57,7 @@ describe('Groups', () => {
         .send({ group_title: 'group1' });
 
       expect(statusCode).toBe(400);
-      expect(body.message).toBe(errorMessage.existTitle);
+      expect(body.message).toBe(errorMessage.duplicate);
     });
   });
 
@@ -81,10 +80,10 @@ describe('Groups', () => {
         .set('authorization', `Bearer ${access_token1}`);
 
       expect(statusCode).toBe(404);
-      expect(body.message).toBe(errorMessage.notFoundGroup);
+      expect(body.message).toBe(errorMessage.notFound);
     });
 
-    it('not join user', async () => {
+    it('not group user', async () => {
       const { statusCode, body } = await request
         .get('/api/groups/GR333333333333')
         .set('authorization', `Bearer ${access_token2}`);
@@ -125,10 +124,10 @@ describe('Groups', () => {
         .send({ group_title: 'update_group1' });
 
       expect(statusCode).toBe(404);
-      expect(body.message).toBe(errorMessage.notFoundGroup);
+      expect(body.message).toBe(errorMessage.notFound);
     });
 
-    it('not join user', async () => {
+    it('not group user', async () => {
       const { statusCode, body } = await request
         .put('/api/groups/GR333333333333')
         .set('authorization', `Bearer ${access_token2}`)
@@ -150,7 +149,7 @@ describe('Groups', () => {
         .send({ group_title: 'group2' });
 
       expect(statusCode).toBe(400);
-      expect(body.message).toBe(errorMessage.existTitle);
+      expect(body.message).toBe(errorMessage.duplicate);
     });
   });
 
@@ -193,17 +192,17 @@ describe('Groups', () => {
         .send({ invite_code: '444444' });
 
       expect(statusCode).toBe(404);
-      expect(body.message).toBe(errorMessage.notFoundGroup);
+      expect(body.message).toBe(errorMessage.notFound);
     });
 
-    it('already join user', async () => {
+    it('group user', async () => {
       const { statusCode, body } = await request
         .post('/api/groups/GR333333333333/user')
         .set('authorization', `Bearer ${access_token1}`)
         .send({ invite_code: '444444' });
 
       expect(statusCode).toBe(400);
-      expect(body.message).toBe(errorMessage.existGroupUser);
+      expect(body.message).toBe(errorMessage.duplicate);
     });
   });
 
@@ -216,7 +215,7 @@ describe('Groups', () => {
       expect(statusCode).toBe(200);
     });
 
-    it('not join user', async () => {
+    it('not group user', async () => {
       const { statusCode, body } = await request
         .delete('/api/groups/GR333333333333/user')
         .set('authorization', `Bearer ${access_token2}`)
@@ -232,7 +231,7 @@ describe('Groups', () => {
         .set('authorization', `Bearer ${access_token2}`);
 
       expect(statusCode).toBe(404);
-      expect(body.message).toBe(errorMessage.notFoundGroup);
+      expect(body.message).toBe(errorMessage.notFound);
     });
 
     it('delete group', async () => {
@@ -251,9 +250,9 @@ describe('Groups', () => {
   afterAll(async () => {
     await testGroupsRepository.sendQuerys([
       { query: `DELETE FROM USERS;` },
+      { query: `DELETE FROM USERS_REFRESH_TOKENS;` },
       { query: `DELETE FROM GROUPS;` },
       { query: `DELETE FROM GROUPS_USERS;` },
-      { query: `DELETE FROM USERS_REFRESH_TOKENS;` },
     ]);
   });
 });

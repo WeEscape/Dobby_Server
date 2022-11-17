@@ -3,9 +3,11 @@
 import { AuthRepository } from '../repositories/auth.repository';
 import { Generator } from '../repositories/base/generator';
 import { RdbmsConfig } from '../repositories/base/rdbms.repository';
+import { CategoriesRepository } from '../repositories/categories.repository';
 import { GroupsRepository } from '../repositories/groups.repository';
 import { UsersRepository } from '../repositories/users.repository';
 import { AuthService } from '../services/auth.service';
+import { CategoriesService } from '../services/categories.service';
 import { GroupsService } from '../services/groups.service';
 import { SocialService } from '../services/social.service';
 import { UsersService } from '../services/users.service';
@@ -15,10 +17,12 @@ export class Container {
   authRepository: AuthRepository;
   usersRepository: UsersRepository;
   groupsRepository: GroupsRepository;
+  categoriesRepository: CategoriesRepository;
   socialService: SocialService;
   authService: AuthService;
   usersService: UsersService;
   groupsService: GroupsService;
+  categoriesService: CategoriesService;
 
   constructor(private readonly rdbmsConfig: RdbmsConfig) {}
 
@@ -54,6 +58,14 @@ export class Container {
     return this.groupsRepository;
   }
 
+  getCategoriesRepository(): CategoriesRepository {
+    if (!this.categoriesRepository) {
+      this.categoriesRepository = new CategoriesRepository(this.rdbmsConfig, this.getGenerator());
+    }
+
+    return this.categoriesRepository;
+  }
+
   getSocialService(): SocialService {
     if (!this.socialService) {
       this.socialService = new SocialService();
@@ -84,5 +96,13 @@ export class Container {
     }
 
     return this.groupsService;
+  }
+
+  getCategoriesService(): CategoriesService {
+    if (!this.categoriesService) {
+      this.categoriesService = new CategoriesService(this.getCategoriesRepository(), this.getGroupsService());
+    }
+
+    return this.categoriesService;
   }
 }

@@ -22,7 +22,7 @@ export const groupsRouter = (groupsService: GroupsService) => {
     }
   });
 
-  /** id별 그룹 조회 */
+  /** 그룹 조회 */
   router.get('/:group_id', async (req, res, next) => {
     try {
       const user_id = req.user?.user_id;

@@ -3,10 +3,11 @@ import { GroupInfo } from '../interfaces/groupInfo.interface';
 import { RdbmsRepository, SelectOptions } from './base/rdbms.repository';
 
 export class GroupsRepository extends RdbmsRepository {
+  /** 그룹 제목별 그룹 조회 */
   async findGroupInfoByGroupTitle(group_title: string, options?: SelectOptions) {
     const selectField = options?.select.toString() || 'GROUPS.*';
 
-    return (<Group[][] | []>await this.sendQuerys([
+    return (<Group[][] | [][]>await this.sendQuerys([
       {
         query: `
           SELECT ${selectField}
@@ -19,10 +20,11 @@ export class GroupsRepository extends RdbmsRepository {
     ]))[0][0];
   }
 
+  /** 그룹 id별 그룹 조회 */
   async findGroupInfoByGroupId(group_id: string, options?: SelectOptions): Promise<GroupInfo | undefined> {
     const selectField = options?.select.toString() || 'GROUPS.*, GROUP_CONCAT(GROUPS_USERS.user_id) AS user_ids';
 
-    const groupInfo = (<any[][] | []>await this.sendQuerys([
+    const groupInfo = (<any[][] | [][]>await this.sendQuerys([
       {
         query: `
           SELECT ${selectField}
@@ -42,6 +44,7 @@ export class GroupsRepository extends RdbmsRepository {
     return groupInfo;
   }
 
+  /** 그룹 생성 */
   async createGroup(options: { user_id: string; group_title: string }): Promise<GroupInfo> {
     const groupId = 'GR' + this.generateId();
     const inviteCode = this.generator.generateRandomString(6);
@@ -80,6 +83,7 @@ export class GroupsRepository extends RdbmsRepository {
     return <GroupInfo>await this.findGroupInfoByGroupId(groupId);
   }
 
+  /** 그룹 수정 */
   async updateGroup(options: { group_id: string; group_title: string }): Promise<GroupInfo> {
     await this.sendQuerys([
       {
@@ -95,6 +99,7 @@ export class GroupsRepository extends RdbmsRepository {
     return <GroupInfo>await this.findGroupInfoByGroupId(options.group_id);
   }
 
+  /** 그룹 삭제 */
   async deleteGroup(options: { group_id: string }): Promise<void> {
     await this.sendQuerys([
       {
@@ -112,6 +117,7 @@ export class GroupsRepository extends RdbmsRepository {
     ]);
   }
 
+  /** 그룹 회원 생성 */
   async createGroupUser(options: { group_id: string; user_id: string }): Promise<GroupInfo> {
     await this.sendQuerys([
       {
@@ -131,6 +137,7 @@ export class GroupsRepository extends RdbmsRepository {
     return <GroupInfo>await this.findGroupInfoByGroupId(options.group_id);
   }
 
+  /** 그룹 회원 삭제 */
   async deleteGroupUser(options: { group_id: string; user_id: string }): Promise<void> {
     await this.sendQuerys([
       {

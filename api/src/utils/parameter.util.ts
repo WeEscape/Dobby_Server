@@ -8,4 +8,6 @@ export const parameter: { [key: string]: string } = {
   refresh_token: 'refresh_token',
   group_title: 'group_title',
   invite_code: 'invite_code',
+  group_id: 'group_id',
+  category_title: 'category_title',
 };

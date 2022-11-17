@@ -52,7 +52,7 @@ describe('Auth', () => {
         .send(registerData.duplicateSocialIdAndSocialType);
 
       expect(statusCode).toBe(400);
-      expect(body.message).toBe(errorMessage.existUser);
+      expect(body.message).toBe(errorMessage.duplicate);
     });
   });
 
@@ -81,7 +81,7 @@ describe('Auth', () => {
       const { statusCode, body } = await request.post('/api/auth/login').send(loginData.invalidSocialIdOrSocialType);
 
       expect(statusCode).toBe(404);
-      expect(body.message).toBe(errorMessage.notFoundUser);
+      expect(body.message).toBe(errorMessage.notFound);
     });
   });
 

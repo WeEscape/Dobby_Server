@@ -11,6 +11,7 @@ import { authRouter } from '../routers/auth.router';
 import { usersRouter } from '../routers/users.router';
 import { authGuard } from '../middlewares/auth.guard';
 import { groupsRouter } from '../routers/groups.router';
+import { categoriesRouter } from '../routers/categories.router';
 
 export class ServerLoader {
   private app: express.Express;
@@ -55,6 +56,7 @@ export class ServerLoader {
     this.app.use('/api/auth', authRouter(this.container.getAuthService()));
     this.app.use('/api/users', authGuard, usersRouter(this.container.getUsersService()));
     this.app.use('/api/groups', authGuard, groupsRouter(this.container.getGroupsService()));
+    this.app.use('/api/categories', authGuard, categoriesRouter(this.container.getCategoriesService()));
 
     // 존재하지 않는 api 주소 설정
     this.app.use('*', (req, res, next) => {

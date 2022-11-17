@@ -29,7 +29,7 @@ describe('Users Service', () => {
 
     it('not found user', async () => {
       await expect(async () => await testUsersService.getUserInfo('US222222222222')).rejects.toThrowError(
-        errorMessage.notFoundUser,
+        errorMessage.notFound,
       );
     });
   });

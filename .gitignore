@@ -8,6 +8,8 @@ dist/
 
 config/
 mariadb/initdb.d/create-user.sql
+mariadb/backup
+mariadb/*.sh
 
 .DS_Store
 

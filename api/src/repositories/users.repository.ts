@@ -2,13 +2,13 @@ import { UserInfo } from '../interfaces/userInfo.interface';
 import { RdbmsRepository, SelectOptions } from './base/rdbms.repository';
 
 export class UsersRepository extends RdbmsRepository {
-  /** id별 회원 검색 */
+  /** id별 회원 조회 */
   async findUserInfoByUserId(user_id: string, options?: SelectOptions): Promise<UserInfo | undefined> {
     const selectField =
       options?.select.toString() ||
       'USERS.user_id, USERS.social_type, USERS.user_name, USERS.profile_image_url, USERS.profile_color, USERS.is_connect, GROUP_CONCAT(GROUPS_USERS.group_id) AS group_ids';
 
-    const userInfo = (<any[][] | []>await this.sendQuerys([
+    const userInfo = (<any[][] | [][]>await this.sendQuerys([
       {
         query: `
           SELECT ${selectField}

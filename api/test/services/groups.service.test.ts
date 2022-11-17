@@ -27,7 +27,7 @@ describe('Groups Service', () => {
 
     it('duplicate group title', async () => {
       await expect(async () => await testGroupsService.createGroup('US111111111111', 'group1')).rejects.toThrowError(
-        errorMessage.existTitle,
+        errorMessage.duplicate,
       );
     });
   });
@@ -44,10 +44,10 @@ describe('Groups Service', () => {
     it('not found group', async () => {
       await expect(
         async () => await testGroupsService.getGroup('US111111111111', 'GR444444444444'),
-      ).rejects.toThrowError(errorMessage.notFoundGroup);
+      ).rejects.toThrowError(errorMessage.notFound);
     });
 
-    it('not join user', async () => {
+    it('not group user', async () => {
       await expect(
         async () => await testGroupsService.getGroup('US222222222222', 'GR333333333333'),
       ).rejects.toThrowError(errorMessage.forbidden);
@@ -66,10 +66,10 @@ describe('Groups Service', () => {
     it('not found group', async () => {
       await expect(
         async () => await testGroupsService.updateGroup('US111111111111', 'GR444444444444', 'update_group1'),
-      ).rejects.toThrowError(errorMessage.notFoundGroup);
+      ).rejects.toThrowError(errorMessage.notFound);
     });
 
-    it('not join user', async () => {
+    it('not group user', async () => {
       await expect(
         async () => await testGroupsService.updateGroup('US222222222222', 'GR333333333333', 'update_group1'),
       ).rejects.toThrowError(errorMessage.forbidden);
@@ -80,7 +80,7 @@ describe('Groups Service', () => {
 
       await expect(
         async () => await testGroupsService.updateGroup('US111111111111', 'GR333333333333', 'group2'),
-      ).rejects.toThrowError(errorMessage.existTitle);
+      ).rejects.toThrowError(errorMessage.duplicate);
     });
   });
 
@@ -95,7 +95,7 @@ describe('Groups Service', () => {
     it('not found group', async () => {
       await expect(
         async () => await testGroupsService.joinGroup('US111111111111', 'GR444444444444', '444444'),
-      ).rejects.toThrowError(errorMessage.notFoundGroup);
+      ).rejects.toThrowError(errorMessage.notFound);
     });
 
     it('invalid invite code', async () => {
@@ -104,10 +104,10 @@ describe('Groups Service', () => {
       ).rejects.toThrowError(errorMessage.invalidParameter('invite_code'));
     });
 
-    it('already join user', async () => {
+    it('group user', async () => {
       await expect(
         async () => await testGroupsService.joinGroup('US111111111111', 'GR333333333333', '444444'),
-      ).rejects.toThrowError(errorMessage.existGroupUser);
+      ).rejects.toThrowError(errorMessage.duplicate);
     });
   });
 
@@ -120,7 +120,7 @@ describe('Groups Service', () => {
       expect(group_info.user_ids).not.toContain('US222222222222');
     });
 
-    it('not join user', async () => {
+    it('not group user', async () => {
       await expect(
         async () => await testGroupsService.leaveGroup('US222222222222', 'GR333333333333'),
       ).rejects.toThrowError(errorMessage.forbidden);
@@ -129,7 +129,7 @@ describe('Groups Service', () => {
     it('not found group', async () => {
       await expect(
         async () => await testGroupsService.leaveGroup('US222222222222', 'GR444444444444'),
-      ).rejects.toThrowError(errorMessage.notFoundGroup);
+      ).rejects.toThrowError(errorMessage.notFound);
     });
 
     it('delete group', async () => {
@@ -144,9 +144,9 @@ describe('Groups Service', () => {
   afterAll(async () => {
     await testGroupsRepository.sendQuerys([
       { query: `DELETE FROM USERS;` },
+      { query: `DELETE FROM USERS_REFRESH_TOKENS;` },
       { query: `DELETE FROM GROUPS;` },
       { query: `DELETE FROM GROUPS_USERS;` },
-      { query: `DELETE FROM USERS_REFRESH_TOKENS;` },
     ]);
   });
 });

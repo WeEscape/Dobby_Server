@@ -11,6 +11,7 @@ import { SocialService } from './social.service';
 export class AuthService {
   constructor(private readonly authRepository: AuthRepository, private readonly socialService: SocialService) {}
 
+  /** 회원가입 */
   async register(registerDto: RegisterDto): Promise<{ user: User }> {
     const existUser = await this.authRepository.findBySocialIdAndSocialType(
       registerDto.social_id,
@@ -18,7 +19,7 @@ export class AuthService {
       { select: ['USERS.user_id'] },
     );
     if (existUser) {
-      throw new BadRequestError(errorMessage.existUser);
+      throw new BadRequestError(errorMessage.duplicate);
     }
 
     let user: User;
@@ -34,12 +35,13 @@ export class AuthService {
     return { user };
   }
 
+  /** 로그인 */
   async login(loginDto: LoginDto, ip: string): Promise<{ access_token: string; refresh_token: string }> {
     const user = await this.authRepository.findBySocialIdAndSocialType(loginDto.social_id, loginDto.social_type, {
       select: ['USERS.user_id'],
     });
     if (!user) {
-      throw new NotFoundError(errorMessage.notFoundUser);
+      throw new NotFoundError(errorMessage.notFound);
     }
 
     const access_token = generateAccessToken(user);
@@ -51,10 +53,12 @@ export class AuthService {
     return { access_token, refresh_token };
   }
 
+  /** 로그아웃 */
   async logout(user_id: string): Promise<void> {
     await this.authRepository.disconnectUser({ user_id });
   }
 
+  /** 회원탈퇴 */
   async withdraw(user_id: string): Promise<void> {
     const user = <User>await this.authRepository.findByUserId(user_id, {
       select: ['USERS.social_id', 'USERS.social_type', 'USERS.apple_refresh_token'],
@@ -64,6 +68,7 @@ export class AuthService {
     await this.authRepository.deleteUser({ user_id });
   }
 
+  /** tokens 재발급 */
   async getTokens(token: string, ip: string): Promise<{ access_token: string; refresh_token: string }> {
     const user = await this.authRepository.findUserByRefreshToken(token, ip, {
       select: ['USERS.user_id', 'USERS_REFRESH_TOKENS.expired_at'],

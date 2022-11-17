@@ -37,7 +37,7 @@ describe('Auth Service', () => {
     it('duplicate social id and social type', async () => {
       await expect(
         async () => await testAuthService.register(registerData.duplicateSocialIdAndSocialType),
-      ).rejects.toThrowError(errorMessage.existUser);
+      ).rejects.toThrowError(errorMessage.duplicate);
     });
   });
 
@@ -61,7 +61,7 @@ describe('Auth Service', () => {
             },
             '127.0.0.1',
           ),
-      ).rejects.toThrowError(errorMessage.notFoundUser);
+      ).rejects.toThrowError(errorMessage.notFound);
     });
   });
 

@@ -52,7 +52,7 @@ describe('Users', () => {
         .set('authorization', `Bearer ${access_token}`);
 
       expect(statusCode).toBe(404);
-      expect(body.message).toBe(errorMessage.notFoundUser);
+      expect(body.message).toBe(errorMessage.notFound);
     });
   });
 

@@ -3,11 +3,11 @@ import { UserRefreshToken } from '../entities/userRefreshToken.entity';
 import { RdbmsRepository, SelectOptions } from './base/rdbms.repository';
 
 export class AuthRepository extends RdbmsRepository {
-  /** id별 회원 검색 */
+  /** id별 회원 조회 */
   async findByUserId(user_id: string, options?: SelectOptions): Promise<User | undefined> {
     const selectField = options?.select.toString() || 'USERS.*';
 
-    return (<User[][] | []>await this.sendQuerys([
+    return (<User[][] | [][]>await this.sendQuerys([
       {
         query: `
           SELECT ${selectField}
@@ -19,7 +19,7 @@ export class AuthRepository extends RdbmsRepository {
     ]))[0][0];
   }
 
-  /** social id, social type별 회원 검색 */
+  /** social id, social type별 회원 조회 */
   async findBySocialIdAndSocialType(
     social_id: string,
     social_type: SocialType,
@@ -27,7 +27,7 @@ export class AuthRepository extends RdbmsRepository {
   ): Promise<User | undefined> {
     const selectField = options?.select.toString() || 'USERS.*';
 
-    return (<User[][] | []>await this.sendQuerys([
+    return (<User[][] | [][]>await this.sendQuerys([
       {
         query: `
           SELECT ${selectField}
@@ -189,7 +189,7 @@ export class AuthRepository extends RdbmsRepository {
     ]);
   }
 
-  /** refresh token별 회원 검색 */
+  /** refresh token별 회원 조회 */
   async findUserByRefreshToken(
     token: string,
     ip: string,
@@ -197,7 +197,7 @@ export class AuthRepository extends RdbmsRepository {
   ): Promise<(User & UserRefreshToken) | undefined> {
     const selectField = options?.select.toString() || 'USERS_REFRESH_TOKENS.*, USERS.*';
 
-    return (<(User & UserRefreshToken)[][] | []>await this.sendQuerys([
+    return (<(User & UserRefreshToken)[][] | [][]>await this.sendQuerys([
       {
         query: `
           SELECT ${selectField}
