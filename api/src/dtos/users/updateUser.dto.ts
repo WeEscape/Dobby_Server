@@ -1,4 +1,5 @@
 import { IsOptional, IsString } from 'class-validator';
+import { ProfileColor } from '../../entities/user.entity';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -11,5 +12,5 @@ export class UpdateUserDto {
 
   @IsOptional()
   @IsString()
-  profile_color?: string;
+  profile_color?: ProfileColor;
 }

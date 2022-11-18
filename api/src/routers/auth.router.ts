@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { GetTokens } from '../dtos/auth/getTokens.dto';
+import { GetTokensDto } from '../dtos/auth/getTokens.dto';
 import { LoginDto } from '../dtos/auth/login.dto';
 import { RegisterDto } from '../dtos/auth/register.dto';
 import { authGuard } from '../middlewares/auth.guard';
@@ -61,7 +61,7 @@ export const authRouter = (authService: AuthService) => {
   });
 
   /** tokens 재발급 */
-  router.post('/tokens', validateBody(GetTokens), async (req, res, next) => {
+  router.post('/tokens', validateBody(GetTokensDto), async (req, res, next) => {
     try {
       const ip = req.ip;
 

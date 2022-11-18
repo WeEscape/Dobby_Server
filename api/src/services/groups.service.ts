@@ -44,7 +44,7 @@ export class GroupsService {
   }
 
   /** 그룹 조회 */
-  async getGroup(user_id: string, group_id: string) {
+  async getGroup(user_id: string, group_id: string): Promise<{ group_info: GroupInfo }> {
     const groupInfo = await this.getGroupByGroupId(user_id, group_id);
 
     return { group_info: groupInfo };

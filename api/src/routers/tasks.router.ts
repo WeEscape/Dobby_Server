@@ -94,7 +94,7 @@ export const tasksRouter = (tasksService: TasksService) => {
   });
 
   /** 반복 집안일 생성 */
-  router.delete('/schedule', async (req, res, next) => {
+  router.post('/schedule', async (req, res, next) => {
     try {
       await tasksService.scheduleCreateRepeatTasks();
 

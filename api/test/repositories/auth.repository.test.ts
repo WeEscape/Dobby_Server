@@ -2,6 +2,7 @@ import { testConatiner } from '../server';
 import { registerData } from '../datas/auth/register.data';
 import { TestGenerator } from './base/generator';
 import { User } from '../../src/entities/user.entity';
+import { config } from '../../src/config';
 
 const testAuthRepository = testConatiner.getAuthRepository();
 
@@ -16,7 +17,7 @@ describe('Auth Repository', () => {
 
       expect(user.user_id).toBe('US111111111111');
       expect(user.user_name).toBe(registerData.kakao.user_name);
-      expect(user.profile_image_url).toBeNull();
+      expect(user.profile_image_url).toBe(config.default.profileImage);
       expect(user.profile_color).toBe(registerData.kakao.profile_color);
     });
   });

@@ -10,6 +10,7 @@ config/
 mariadb/initdb.d/create-user.sql
 mariadb/backup
 mariadb/*.sh
+schedule.sh
 
 .DS_Store
 

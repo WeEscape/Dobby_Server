@@ -68,11 +68,6 @@ describe('Groups', () => {
       expect(body.data.task.end_repeat_at).toBe(createTaskData.successWithRepeat.end_repeat_at);
       expect(body.data.task.excute_at).toBe(createTaskData.successWithRepeat.excute_at);
       expect(body.data.task.start_repeat_task_id).toBe('TS777777777777');
-
-      await request
-        .post('/api/tasks')
-        .set('authorization', `Bearer ${access_token1}`)
-        .send(createTaskData.successWithRepeat2);
     });
 
     it('parameter error', async () => {

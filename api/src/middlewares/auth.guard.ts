@@ -6,7 +6,7 @@ import { verifyAccessToken } from '../utils/token.util';
 export const authGuard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     // socket 서버용
-    if (req.headers.key === 'schdule') {
+    if (req.headers.key === 'schedule') {
       return next();
     }
 

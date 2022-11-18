@@ -17,7 +17,7 @@ export class User {
   social_type: SocialType | null;
   user_name: string | null;
   profile_image_url: string | null;
-  profile_color: string | null;
+  profile_color: ProfileColor | null;
   is_connect: number;
   last_connected_at: Date | null;
   apple_refresh_token: string | null;

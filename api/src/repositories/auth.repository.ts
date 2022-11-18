@@ -1,3 +1,4 @@
+import { config } from '../config';
 import { ProfileColor, SocialType, User } from '../entities/user.entity';
 import { UserRefreshToken } from '../entities/userRefreshToken.entity';
 import { RdbmsRepository, SelectOptions } from './base/rdbms.repository';
@@ -77,7 +78,7 @@ export class AuthRepository extends RdbmsRepository {
           options.social_id,
           options.social_type,
           options.user_name,
-          options?.profile_image_url || null,
+          options?.profile_image_url || config.default.profileImage,
           options.profile_color,
           options?.apple_refresh_token || null,
         ],

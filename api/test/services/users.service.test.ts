@@ -1,3 +1,4 @@
+import { config } from '../../src/config';
 import { errorMessage } from '../../src/utils/message.util';
 import { loginData } from '../datas/auth/login.data';
 import { registerData } from '../datas/auth/register.data';
@@ -22,7 +23,7 @@ describe('Users Service', () => {
       expect(result.user_info.user_id).toBe('US111111111111');
       expect(result.user_info.social_type).toBe(registerData.kakao.social_type);
       expect(result.user_info.user_name).toBe(registerData.kakao.user_name);
-      expect(result.user_info.profile_image_url).toBeNull();
+      expect(result.user_info.profile_image_url).toBe(config.default.profileImage);
       expect(result.user_info.profile_color).toBe(registerData.kakao.profile_color);
       expect(result.user_info.group_ids).toBeNull();
     });
@@ -41,7 +42,7 @@ describe('Users Service', () => {
       expect(result.user_info.user_id).toBe('US111111111111');
       expect(result.user_info.social_type).toBe(registerData.kakao.social_type);
       expect(result.user_info.user_name).toBe(updateUserData.success.user_name);
-      expect(result.user_info.profile_image_url).toBeNull();
+      expect(result.user_info.profile_image_url).toBe(config.default.profileImage);
       expect(result.user_info.profile_color).toBe(registerData.kakao.profile_color);
       expect(result.user_info.group_ids).toBeNull();
     });
