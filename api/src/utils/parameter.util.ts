@@ -10,4 +10,13 @@ export const parameter: { [key: string]: string } = {
   invite_code: 'invite_code',
   group_id: 'group_id',
   category_title: 'category_title',
+  category_id: 'category_id',
+  task_title: 'task_title',
+  repeat_cycle: 'repeat_cycle',
+  memo: 'memo',
+  notice_available: 'notice_available',
+  end_repeat_at: 'end_repeat_at',
+  excute_at: 'excute_at',
+  add_user_ids: 'add_user_ids',
+  delete_user_ids: 'delete_user_ids',
 };

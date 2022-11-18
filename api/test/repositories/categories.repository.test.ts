@@ -82,10 +82,10 @@ describe('Groups Repository', () => {
       });
     });
 
-    it('undefined', async () => {
+    it('no data', async () => {
       const categoryList = <[]>await testCategoriesRepository.findCategoriesByGroupId('GR444444444444');
 
-      expect(categoryList.length).toBe(0);
+      expect(categoryList).toEqual([]);
     });
   });
 

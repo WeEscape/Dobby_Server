@@ -29,7 +29,7 @@ describe('Groups', () => {
   describe('create group', () => {
     it('success', async () => {
       const { statusCode, body } = await request
-        .post('/api/groups/')
+        .post('/api/groups')
         .set('authorization', `Bearer ${access_token1}`)
         .send({ group_title: 'group1' });
 
@@ -42,7 +42,7 @@ describe('Groups', () => {
 
     it('parameter error', async () => {
       const { statusCode, body } = await request
-        .post('/api/groups/')
+        .post('/api/groups')
         .set('authorization', `Bearer ${access_token1}`)
         .send({ group_title: 123 });
 
@@ -52,7 +52,7 @@ describe('Groups', () => {
 
     it('duplicate group title', async () => {
       const { statusCode, body } = await request
-        .post('/api/groups/')
+        .post('/api/groups')
         .set('authorization', `Bearer ${access_token1}`)
         .send({ group_title: 'group1' });
 
@@ -138,10 +138,7 @@ describe('Groups', () => {
     });
 
     it('duplicate group title', async () => {
-      await request
-        .post('/api/groups/')
-        .set('authorization', `Bearer ${access_token1}`)
-        .send({ group_title: 'group2' });
+      await request.post('/api/groups').set('authorization', `Bearer ${access_token1}`).send({ group_title: 'group2' });
 
       const { statusCode, body } = await request
         .put('/api/groups/GR333333333333')

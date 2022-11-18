@@ -5,6 +5,11 @@ import { verifyAccessToken } from '../utils/token.util';
 /** access token 인가 */
 export const authGuard = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    // socket 서버용
+    if (req.headers.key === 'schdule') {
+      return next();
+    }
+
     const access_token = req.headers.authorization?.split(' ')[1];
     if (!access_token) {
       return next(new UnauthorizedError('access_token empty'));

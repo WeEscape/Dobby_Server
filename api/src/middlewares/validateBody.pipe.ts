@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { plainToClass } from 'class-transformer';
 import { validateOrReject } from 'class-validator';
-import { parameter } from '../utils/parameter.util';
 import { errorMessage } from '../utils/message.util';
 import { BadRequestError } from '../exceptions/BadRequest.exception';
 

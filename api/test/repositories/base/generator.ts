@@ -11,7 +11,10 @@ export class TestGenerator extends Generator {
   }
 
   generateRandomString(length: number) {
-    const randomString = new Array(length).fill(this.count).join('');
+    if (this.count % 11 === 0) {
+      this.count += 1;
+    }
+    const randomString = new Array(length).fill(this.count).join('').slice(0, length);
     this.count += 1;
 
     return randomString;

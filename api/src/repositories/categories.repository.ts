@@ -34,7 +34,7 @@ export class CategoriesRepository extends RdbmsRepository {
           SELECT ${selectField}
           FROM CATEGORIES
           LEFT JOIN TASKS USING(category_id)
-          WHERE category_id = ?
+          WHERE CATEGORIES.category_id = ?
           GROUP BY CATEGORIES.category_id;
         `,
         params: [category_id],

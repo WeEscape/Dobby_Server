@@ -5,11 +5,13 @@ import { Generator } from '../repositories/base/generator';
 import { RdbmsConfig } from '../repositories/base/rdbms.repository';
 import { CategoriesRepository } from '../repositories/categories.repository';
 import { GroupsRepository } from '../repositories/groups.repository';
+import { TasksRepository } from '../repositories/tasks.repository';
 import { UsersRepository } from '../repositories/users.repository';
 import { AuthService } from '../services/auth.service';
 import { CategoriesService } from '../services/categories.service';
 import { GroupsService } from '../services/groups.service';
 import { SocialService } from '../services/social.service';
+import { TasksService } from '../services/tasks.service';
 import { UsersService } from '../services/users.service';
 
 export class Container {
@@ -18,11 +20,13 @@ export class Container {
   usersRepository: UsersRepository;
   groupsRepository: GroupsRepository;
   categoriesRepository: CategoriesRepository;
+  tasksRepository: TasksRepository;
   socialService: SocialService;
   authService: AuthService;
   usersService: UsersService;
   groupsService: GroupsService;
   categoriesService: CategoriesService;
+  tasksService: TasksService;
 
   constructor(private readonly rdbmsConfig: RdbmsConfig) {}
 
@@ -66,6 +70,14 @@ export class Container {
     return this.categoriesRepository;
   }
 
+  getTasksRepository(): TasksRepository {
+    if (!this.tasksRepository) {
+      this.tasksRepository = new TasksRepository(this.rdbmsConfig, this.getGenerator());
+    }
+
+    return this.tasksRepository;
+  }
+
   getSocialService(): SocialService {
     if (!this.socialService) {
       this.socialService = new SocialService();
@@ -104,5 +116,17 @@ export class Container {
     }
 
     return this.categoriesService;
+  }
+
+  getTasksService(): TasksService {
+    if (!this.tasksService) {
+      this.tasksService = new TasksService(
+        this.getTasksRepository(),
+        this.getGroupsService(),
+        this.getCategoriesService(),
+      );
+    }
+
+    return this.tasksService;
   }
 }

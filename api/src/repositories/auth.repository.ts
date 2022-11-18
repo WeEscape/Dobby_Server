@@ -203,8 +203,8 @@ export class AuthRepository extends RdbmsRepository {
           SELECT ${selectField}
           FROM USERS
           LEFT JOIN USERS_REFRESH_TOKENS USING(user_id)
-          WHERE ip = ?
-            AND token = ?;
+          WHERE USERS_REFRESH_TOKENS.ip = ?
+            AND USERS_REFRESH_TOKENS.token = ?;
         `,
         params: [ip, token],
       },

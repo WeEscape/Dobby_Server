@@ -27,7 +27,7 @@ describe('Groups', () => {
 
     access_token2 = result2.body.data.access_token;
 
-    await request.post('/api/groups/').set('authorization', `Bearer ${access_token1}`).send({ group_title: 'group1' });
+    await request.post('/api/groups').set('authorization', `Bearer ${access_token1}`).send({ group_title: 'group1' });
   });
 
   describe('create category', () => {

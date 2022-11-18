@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import { CreateCategoryDto } from '../dtos/categories/createCategory.dto';
 import { UpdateCategoryDto } from '../dtos/categories/updateCategory.dto';
-import { CreateGroupDto } from '../dtos/groups/createGroup.dto';
 import { responseInterceptor } from '../middlewares/response.interceptor';
 import { validateBody } from '../middlewares/validateBody.pipe';
 import { CategoriesService } from '../services/categories.service';

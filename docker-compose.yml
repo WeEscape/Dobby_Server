@@ -16,6 +16,7 @@ services:
     container_name: dobby_api
     build:
       context: ./api
+    restart: always
     depends_on:
       - dobby_mariadb
     env_file:
@@ -26,8 +27,9 @@ services:
     container_name: dobby_nginx
     build:
       context: ./nginx
+    restart: always
     ports:
-      - 100:80
+      - 80:80
     depends_on:
       - dobby_api
 volumes:

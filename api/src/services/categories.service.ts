@@ -54,7 +54,7 @@ export class CategoriesService {
   }
 
   /** 카테고리 목록 조회 */
-  async getCategories(user_id: string, group_id: string): Promise<{ category_list: Category[] }> {
+  async getCategories(user_id: string, group_id: string): Promise<{ category_list: Category[] | [] }> {
     await this.groupsService.validateUserInGroup(user_id, group_id);
 
     const categoryList = <Category[]>await this.categoriesRepository.findCategoriesByGroupId(group_id);
