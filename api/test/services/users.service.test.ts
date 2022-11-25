@@ -1,6 +1,5 @@
-import { config } from '../../src/config';
+import { defaultValue } from '../../src/utils/default.util';
 import { errorMessage } from '../../src/utils/message.util';
-import { loginData } from '../datas/auth/login.data';
 import { registerData } from '../datas/auth/register.data';
 import { updateUserData } from '../datas/users/updateUser.data';
 import { TestGenerator } from '../repositories/base/generator';
@@ -16,20 +15,22 @@ describe('Users Service', () => {
     await testAuthService.register(registerData.kakao);
   });
 
-  describe('get user info', () => {
+  describe('get user', () => {
     it('success', async () => {
-      const result = await testUsersService.getUserInfo('US111111111111');
+      const result = await testUsersService.getUserInfo('US1111111111111111');
 
-      expect(result.user_info.user_id).toBe('US111111111111');
-      expect(result.user_info.social_type).toBe(registerData.kakao.social_type);
-      expect(result.user_info.user_name).toBe(registerData.kakao.user_name);
-      expect(result.user_info.profile_image_url).toBe(config.default.profileImage);
-      expect(result.user_info.profile_color).toBe(registerData.kakao.profile_color);
-      expect(result.user_info.group_ids).toBeNull();
+      expect(result.user.user_id).toBe('US1111111111111111');
+      expect(result.user.social_type).toBe(registerData.kakao.social_type);
+      expect(result.user.user_name).toBe(registerData.kakao.user_name);
+      expect(result.user.profile_image_url).toBe(defaultValue.profileImage);
+      expect(result.user.profile_color).toBe(registerData.kakao.profile_color);
+      result.group_list.forEach(group => {
+        expect(typeof group.group_id).toBe('string');
+      });
     });
 
     it('not found user', async () => {
-      await expect(async () => await testUsersService.getUserInfo('US222222222222')).rejects.toThrowError(
+      await expect(async () => await testUsersService.getUserInfo('US1010101010101010')).rejects.toThrowError(
         errorMessage.notFound,
       );
     });
@@ -37,14 +38,16 @@ describe('Users Service', () => {
 
   describe('update user', () => {
     it('success', async () => {
-      const result = await testUsersService.updateUser('US111111111111', updateUserData.success);
+      const result = await testUsersService.updateUser('US1111111111111111', updateUserData.success);
 
-      expect(result.user_info.user_id).toBe('US111111111111');
-      expect(result.user_info.social_type).toBe(registerData.kakao.social_type);
-      expect(result.user_info.user_name).toBe(updateUserData.success.user_name);
-      expect(result.user_info.profile_image_url).toBe(config.default.profileImage);
-      expect(result.user_info.profile_color).toBe(registerData.kakao.profile_color);
-      expect(result.user_info.group_ids).toBeNull();
+      expect(result.user.user_id).toBe('US1111111111111111');
+      expect(result.user.social_type).toBe(registerData.kakao.social_type);
+      expect(result.user.user_name).toBe(updateUserData.success.user_name);
+      expect(result.user.profile_image_url).toBe(defaultValue.profileImage);
+      expect(result.user.profile_color).toBe(registerData.kakao.profile_color);
+      result.group_list.forEach(group => {
+        expect(typeof group.group_id).toBe('string');
+      });
     });
   });
 
@@ -52,6 +55,9 @@ describe('Users Service', () => {
     await testUsersRepository.sendQuerys([
       { query: `DELETE FROM USERS;` },
       { query: `DELETE FROM USERS_REFRESH_TOKENS;` },
+      { query: `DELETE FROM GROUPS;` },
+      { query: `DELETE FROM GROUPS_USERS;` },
+      { query: `DELETE FROM CATEGORIES;` },
     ]);
   });
 });

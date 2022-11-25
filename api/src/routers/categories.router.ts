@@ -69,7 +69,7 @@ export const categoriesRouter = (categoriesService: CategoriesService) => {
       const user_id = req.user?.user_id;
       const category_id = req.params.category_id;
 
-      await categoriesService.deleteeCategory(user_id, category_id);
+      await categoriesService.deleteCategory(user_id, category_id);
 
       return res.status(200).json(responseInterceptor(req));
     } catch (err) {

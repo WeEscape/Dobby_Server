@@ -35,4 +35,8 @@ export class TestGenerator extends Generator {
   generateRefreshTokenExpiredAt(): Date {
     return this.generateExpiredAtInSec(1);
   }
+
+  generateId(): string {
+    return this.generateRandomString(16);
+  }
 }

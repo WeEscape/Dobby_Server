@@ -1,4 +1,5 @@
 import supertest from 'supertest';
+import { User } from '../../src/entities/user.entity';
 import { errorMessage } from '../../src/utils/message.util';
 import { loginData } from '../datas/auth/login.data';
 import { registerData } from '../datas/auth/register.data';
@@ -34,10 +35,10 @@ describe('Groups', () => {
         .send({ group_title: 'group1' });
 
       expect(statusCode).toBe(200);
-      expect(body.data.group_info.group_id).toBe('GR333333333333');
-      expect(body.data.group_info.user_id).toBe('US111111111111');
-      expect(body.data.group_info.group_title).toBe('group1');
-      expect(body.data.group_info.invite_code.length).toBe(6);
+      expect(body.data.group.group_id).toBe('GR2020202020202020');
+      expect(body.data.group.user_id).toBe('US1111111111111111');
+      expect(body.data.group.group_title).toBe('group1');
+      expect(body.data.group.invite_code.length).toBe(6);
     });
 
     it('parameter error', async () => {
@@ -64,19 +65,19 @@ describe('Groups', () => {
   describe('get group', () => {
     it('success', async () => {
       const { statusCode, body } = await request
-        .get('/api/groups/GR333333333333')
+        .get('/api/groups/GR2020202020202020')
         .set('authorization', `Bearer ${access_token1}`);
 
       expect(statusCode).toBe(200);
-      expect(body.data.group_info.group_id).toBe('GR333333333333');
-      expect(body.data.group_info.user_id).toBe('US111111111111');
-      expect(body.data.group_info.group_title).toBe('group1');
-      expect(body.data.group_info.invite_code.length).toBe(6);
+      expect(body.data.group.group_id).toBe('GR2020202020202020');
+      expect(body.data.group.user_id).toBe('US1111111111111111');
+      expect(body.data.group.group_title).toBe('group1');
+      expect(body.data.group.invite_code.length).toBe(6);
     });
 
     it('not found group', async () => {
       const { statusCode, body } = await request
-        .get('/api/groups/GR444444444444')
+        .get('/api/groups/GR4444444444444444')
         .set('authorization', `Bearer ${access_token1}`);
 
       expect(statusCode).toBe(404);
@@ -85,7 +86,7 @@ describe('Groups', () => {
 
     it('not group user', async () => {
       const { statusCode, body } = await request
-        .get('/api/groups/GR333333333333')
+        .get('/api/groups/GR2020202020202020')
         .set('authorization', `Bearer ${access_token2}`);
 
       expect(statusCode).toBe(403);
@@ -96,20 +97,20 @@ describe('Groups', () => {
   describe('update group', () => {
     it('success', async () => {
       const { statusCode, body } = await request
-        .put('/api/groups/GR333333333333')
+        .put('/api/groups/GR2020202020202020')
         .set('authorization', `Bearer ${access_token1}`)
         .send({ group_title: 'update_group1' });
 
       expect(statusCode).toBe(200);
-      expect(body.data.group_info.group_id).toBe('GR333333333333');
-      expect(body.data.group_info.user_id).toBe('US111111111111');
-      expect(body.data.group_info.group_title).toBe('update_group1');
-      expect(body.data.group_info.invite_code.length).toBe(6);
+      expect(body.data.group.group_id).toBe('GR2020202020202020');
+      expect(body.data.group.user_id).toBe('US1111111111111111');
+      expect(body.data.group.group_title).toBe('update_group1');
+      expect(body.data.group.invite_code.length).toBe(6);
     });
 
     it('parameter error', async () => {
       const { statusCode, body } = await request
-        .put('/api/groups/GR333333333333')
+        .put('/api/groups/GR2020202020202020')
         .set('authorization', `Bearer ${access_token1}`)
         .send({ group_title: 123 });
 
@@ -119,7 +120,7 @@ describe('Groups', () => {
 
     it('not found group', async () => {
       const { statusCode, body } = await request
-        .put('/api/groups/GR444444444444')
+        .put('/api/groups/GR4444444444444444')
         .set('authorization', `Bearer ${access_token1}`)
         .send({ group_title: 'update_group1' });
 
@@ -129,7 +130,7 @@ describe('Groups', () => {
 
     it('not group user', async () => {
       const { statusCode, body } = await request
-        .put('/api/groups/GR333333333333')
+        .put('/api/groups/GR2020202020202020')
         .set('authorization', `Bearer ${access_token2}`)
         .send({ group_title: 'update_group1' });
 
@@ -141,7 +142,7 @@ describe('Groups', () => {
       await request.post('/api/groups').set('authorization', `Bearer ${access_token1}`).send({ group_title: 'group2' });
 
       const { statusCode, body } = await request
-        .put('/api/groups/GR333333333333')
+        .put('/api/groups/GR2020202020202020')
         .set('authorization', `Bearer ${access_token1}`)
         .send({ group_title: 'group2' });
 
@@ -153,7 +154,7 @@ describe('Groups', () => {
   describe('join group', () => {
     it('invalid invite code', async () => {
       const { statusCode, body } = await request
-        .post('/api/groups/GR333333333333/user')
+        .post('/api/groups/GR2020202020202020/user')
         .set('authorization', `Bearer ${access_token2}`)
         .send({ invite_code: '333333' });
 
@@ -163,18 +164,18 @@ describe('Groups', () => {
 
     it('success', async () => {
       const { statusCode, body } = await request
-        .post('/api/groups/GR333333333333/user')
+        .post('/api/groups/GR2020202020202020/user')
         .set('authorization', `Bearer ${access_token2}`)
-        .send({ invite_code: '444444' });
+        .send({ invite_code: '212121' });
 
       expect(statusCode).toBe(200);
-      expect(body.data.group_info.group_id).toBe('GR333333333333');
-      expect(body.data.group_info.user_ids).toContain('US222222222222');
+      expect(body.data.group.group_id).toBe('GR2020202020202020');
+      expect(body.data.group_user_list.some((user: User) => user.user_id === 'US1010101010101010')).toBeTruthy();
     });
 
     it('parameter error', async () => {
       const { statusCode, body } = await request
-        .post('/api/groups/GR333333333333/user')
+        .post('/api/groups/GR2020202020202020/user')
         .set('authorization', `Bearer ${access_token2}`)
         .send({ invite_code: 123 });
 
@@ -184,7 +185,7 @@ describe('Groups', () => {
 
     it('not found group', async () => {
       const { statusCode, body } = await request
-        .post('/api/groups/GR444444444444/user')
+        .post('/api/groups/GR4444444444444444/user')
         .set('authorization', `Bearer ${access_token2}`)
         .send({ invite_code: '444444' });
 
@@ -194,9 +195,9 @@ describe('Groups', () => {
 
     it('group user', async () => {
       const { statusCode, body } = await request
-        .post('/api/groups/GR333333333333/user')
+        .post('/api/groups/GR2020202020202020/user')
         .set('authorization', `Bearer ${access_token1}`)
-        .send({ invite_code: '444444' });
+        .send({ invite_code: '212121' });
 
       expect(statusCode).toBe(400);
       expect(body.message).toBe(errorMessage.duplicate);
@@ -206,7 +207,7 @@ describe('Groups', () => {
   describe('leave group', () => {
     it('success', async () => {
       const { statusCode } = await request
-        .delete('/api/groups/GR333333333333/user')
+        .delete('/api/groups/GR2020202020202020/user')
         .set('authorization', `Bearer ${access_token2}`);
 
       expect(statusCode).toBe(200);
@@ -214,7 +215,7 @@ describe('Groups', () => {
 
     it('not group user', async () => {
       const { statusCode, body } = await request
-        .delete('/api/groups/GR333333333333/user')
+        .delete('/api/groups/GR2020202020202020/user')
         .set('authorization', `Bearer ${access_token2}`)
         .send({ invite_code: '444444' });
 
@@ -224,7 +225,7 @@ describe('Groups', () => {
 
     it('not found group', async () => {
       const { statusCode, body } = await request
-        .delete('/api/groups/GR444444444444/user')
+        .delete('/api/groups/GR4444444444444444/user')
         .set('authorization', `Bearer ${access_token2}`);
 
       expect(statusCode).toBe(404);
@@ -233,14 +234,14 @@ describe('Groups', () => {
 
     it('delete group', async () => {
       const { statusCode } = await request
-        .delete('/api/groups/GR333333333333/user')
+        .delete('/api/groups/GR2020202020202020/user')
         .set('authorization', `Bearer ${access_token1}`);
 
       expect(statusCode).toBe(200);
 
-      const group_info = <undefined>await testGroupsRepository.findGroupInfoByGroupId('GR333333333333');
+      const group = <undefined>await testGroupsRepository.findGroupInfoByGroupId('GR2020202020202020');
 
-      expect(group_info).toBeUndefined();
+      expect(group).toBeUndefined();
     });
   });
 
@@ -250,6 +251,7 @@ describe('Groups', () => {
       { query: `DELETE FROM USERS_REFRESH_TOKENS;` },
       { query: `DELETE FROM GROUPS;` },
       { query: `DELETE FROM GROUPS_USERS;` },
+      { query: `DELETE FROM CATEGORIES;` },
     ]);
   });
 });

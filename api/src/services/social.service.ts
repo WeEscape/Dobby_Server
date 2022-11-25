@@ -18,7 +18,6 @@ export class SocialService {
         },
       );
     } catch (err) {
-      console.log(err);
       logger.error(`KAKAO: ${err}`);
       throw new BadGatewayError('kakao');
     }

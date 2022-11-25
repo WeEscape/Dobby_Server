@@ -1,7 +1,8 @@
+import { Group } from '../entities/group.entity';
+import { User } from '../entities/user.entity';
 import { BadRequestError } from '../exceptions/BadRequest.exception';
 import { ForbiddenError } from '../exceptions/Forbidden.exception';
 import { NotFoundError } from '../exceptions/NotFound.exception';
-import { GroupInfo } from '../interfaces/groupInfo.interface';
 import { GroupsRepository } from '../repositories/groups.repository';
 import { errorMessage } from '../utils/message.util';
 
@@ -10,23 +11,24 @@ export class GroupsService {
 
   /** 그룹 제목 검증 */
   private async validateUniqueGroupTitle(group_title: string): Promise<void> {
-    const existGroup = <GroupInfo>await this.groupsRepository.findGroupInfoByGroupTitle(group_title);
+    const existGroup = <Group>await this.groupsRepository.findGroupInfoByGroupTitle(group_title);
     if (existGroup) {
       throw new BadRequestError(errorMessage.duplicate);
     }
   }
 
   /** id별 그룹 조회 */
-  private async getGroupByGroupId(user_id: string, group_id: string): Promise<GroupInfo> {
-    const groupInfo = await this.groupsRepository.findGroupInfoByGroupId(group_id);
-    if (!groupInfo) {
+  private async getGroupByGroupId(user_id: string, group_id: string): Promise<[Group, User[]]> {
+    const group = await this.groupsRepository.findGroupInfoByGroupId(group_id);
+    if (!group) {
       throw new NotFoundError(errorMessage.notFound);
     }
-    if (!groupInfo.user_ids?.includes(user_id)) {
+    const groupUserList = await this.groupsRepository.findGroupUserByGroupId(group_id);
+    if (!groupUserList.some(user => user.user_id === user_id)) {
       throw new ForbiddenError(errorMessage.forbidden);
     }
 
-    return groupInfo;
+    return [group, groupUserList];
   }
 
   /** 그룹 참여 여부 검증 */
@@ -35,54 +37,66 @@ export class GroupsService {
   }
 
   /** 그룹 생성 */
-  async createGroup(user_id: string, group_title: string): Promise<{ group_info: GroupInfo }> {
+  async createGroup(user_id: string, group_title: string): Promise<{ group: Group; group_user_list: User[] }> {
     await this.validateUniqueGroupTitle(group_title);
 
-    const groupInfo = await this.groupsRepository.createGroup({ user_id, group_title });
+    const group = await this.groupsRepository.createGroup({ user_id, group_title });
+    const groupUserList = await this.groupsRepository.findGroupUserByGroupId(group.group_id);
 
-    return { group_info: groupInfo };
+    return { group, group_user_list: groupUserList };
   }
 
   /** 그룹 조회 */
-  async getGroup(user_id: string, group_id: string): Promise<{ group_info: GroupInfo }> {
-    const groupInfo = await this.getGroupByGroupId(user_id, group_id);
+  async getGroup(user_id: string, group_id: string): Promise<{ group: Group; group_user_list: User[] }> {
+    const [group, groupUserList] = await this.getGroupByGroupId(user_id, group_id);
 
-    return { group_info: groupInfo };
+    return { group, group_user_list: groupUserList };
   }
 
   /** 그룹 수정 */
-  async updateGroup(user_id: string, group_id: string, group_title: string): Promise<{ group_info: GroupInfo }> {
+  async updateGroup(
+    user_id: string,
+    group_id: string,
+    group_title: string,
+  ): Promise<{ group: Group; group_user_list: User[] }> {
     await this.validateUserInGroup(user_id, group_id);
     await this.validateUniqueGroupTitle(group_title);
 
-    const groupInfo = await this.groupsRepository.updateGroup({ group_id, group_title });
+    const group = await this.groupsRepository.updateGroup({ group_id, group_title });
+    const groupUserList = await this.groupsRepository.findGroupUserByGroupId(group_id);
 
-    return { group_info: groupInfo };
+    return { group, group_user_list: groupUserList };
   }
 
   /** 그룹 가입 */
-  async joinGroup(user_id: string, group_id: string, invite_code: string): Promise<{ group_info: GroupInfo }> {
-    let groupInfo = await this.groupsRepository.findGroupInfoByGroupId(group_id);
-    if (!groupInfo) {
+  async joinGroup(
+    user_id: string,
+    group_id: string,
+    invite_code: string,
+  ): Promise<{ group: Group; group_user_list: User[] }> {
+    let group = await this.groupsRepository.findGroupInfoByGroupId(group_id);
+    if (!group) {
       throw new NotFoundError(errorMessage.notFound);
     }
-    if (groupInfo.invite_code !== invite_code) {
+    if (group.invite_code !== invite_code) {
       throw new BadRequestError(errorMessage.invalidParameter('invite_code'));
     }
-    if (groupInfo.user_ids?.includes(user_id)) {
+    const existGroupUserList = await this.groupsRepository.findGroupUserByGroupId(group_id);
+    if (existGroupUserList.some(user => user.user_id === user_id)) {
       throw new BadRequestError(errorMessage.duplicate);
     }
 
-    groupInfo = await this.groupsRepository.createGroupUser({ group_id, user_id });
+    const groupUserList = await this.groupsRepository.createGroupUser({ group_id, user_id });
 
-    return { group_info: groupInfo };
+    return { group, group_user_list: groupUserList };
   }
 
+  /** 그룹 탈퇴 */
   async leaveGroup(user_id: string, group_id: string): Promise<void> {
-    const groupInfo = await this.getGroupByGroupId(user_id, group_id);
+    const [group, groupUserList] = await this.getGroupByGroupId(user_id, group_id);
     await this.groupsRepository.deleteGroupUser({ group_id, user_id });
 
-    if (groupInfo.user_ids.length === 1) {
+    if (groupUserList.length === 1) {
       await this.groupsRepository.deleteGroup({ group_id });
     }
   }

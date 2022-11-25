@@ -150,6 +150,9 @@ describe('Auth', () => {
     await testAuthRepository.sendQuerys([
       { query: `DELETE FROM USERS;` },
       { query: `DELETE FROM USERS_REFRESH_TOKENS;` },
+      { query: `DELETE FROM GROUPS;` },
+      { query: `DELETE FROM GROUPS_USERS;` },
+      { query: `DELETE FROM CATEGORIES;` },
     ]);
   });
 });

@@ -2,15 +2,15 @@ import { CreateCategoryDto } from '../../../src/dtos/categories/createCategory.d
 
 export const createCategoryData: { [key: string]: CreateCategoryDto } = {
   success: {
-    group_id: 'GR333333333333',
+    group_id: 'GR2020202020202020',
     category_title: 'category1',
   },
   notfoundGroup: {
-    group_id: 'GR444444444444',
+    group_id: 'GR6666666666666666',
     category_title: 'category1',
   },
   duplicateCategoryTitle: {
-    group_id: 'GR333333333333',
+    group_id: 'GR2020202020202020',
     category_title: 'category1',
   },
 };

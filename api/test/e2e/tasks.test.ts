@@ -17,7 +17,7 @@ const testTasksRepository = testConatiner.getTasksRepository();
 let access_token1: string;
 let access_token2: string;
 
-describe('Groups', () => {
+describe('Tasks', () => {
   beforeAll(async () => {
     (<TestGenerator>testConatiner.getGenerator()).resetCount();
     await request.post('/api/auth/register').send(registerData.kakao);
@@ -45,8 +45,8 @@ describe('Groups', () => {
         .send(createTaskData.successWithoutRepeat);
 
       expect(statusCode).toBe(200);
-      expect(body.data.task.task_id).toBe('TS666666666666');
-      expect(body.data.task.user_id).toBe('US111111111111');
+      expect(body.data.task.task_id).toBe('TS3030303030303030');
+      expect(body.data.task.user_id).toBe('US1111111111111111');
       expect(body.data.task.category_id).toBe(createTaskData.successWithoutRepeat.category_id);
       expect(body.data.task.task_title).toBe(createTaskData.successWithoutRepeat.task_title);
       expect(body.data.task.excute_at).toEqual(createTaskData.successWithoutRepeat.excute_at);
@@ -60,14 +60,14 @@ describe('Groups', () => {
         .send(createTaskData.successWithRepeat);
 
       expect(statusCode).toBe(200);
-      expect(body.data.task.task_id).toBe('TS777777777777');
-      expect(body.data.task.user_id).toBe('US111111111111');
+      expect(body.data.task.task_id).toBe('TS3131313131313131');
+      expect(body.data.task.user_id).toBe('US1111111111111111');
       expect(body.data.task.category_id).toBe(createTaskData.successWithRepeat.category_id);
       expect(body.data.task.task_title).toBe(createTaskData.successWithRepeat.task_title);
       expect(body.data.task.repeat_cycle).toBe(createTaskData.successWithRepeat.repeat_cycle);
       expect(body.data.task.end_repeat_at).toBe(createTaskData.successWithRepeat.end_repeat_at);
       expect(body.data.task.excute_at).toBe(createTaskData.successWithRepeat.excute_at);
-      expect(body.data.task.start_repeat_task_id).toBe('TS777777777777');
+      expect(body.data.task.start_repeat_task_id).toBe('TS3131313131313131');
     });
 
     it('parameter error', async () => {
@@ -94,7 +94,7 @@ describe('Groups', () => {
   describe('get tasks', () => {
     it('daily task list', async () => {
       const { statusCode, body } = await request
-        .get('/api/tasks/group/GR333333333333/2022-11-19/daily')
+        .get('/api/tasks/group/GR2020202020202020/2022-11-19/daily')
         .set('authorization', `Bearer ${access_token1}`);
 
       expect(statusCode).toBe(200);
@@ -108,7 +108,7 @@ describe('Groups', () => {
 
     it('weekly task list', async () => {
       const { statusCode, body } = await request
-        .get('/api/tasks/group/GR333333333333/2022-11-19/weekly')
+        .get('/api/tasks/group/GR2020202020202020/2022-11-19/weekly')
         .set('authorization', `Bearer ${access_token1}`);
 
       expect(statusCode).toBe(200);
@@ -123,7 +123,7 @@ describe('Groups', () => {
 
     it('monthly task list', async () => {
       const { statusCode, body } = await request
-        .get('/api/tasks/group/GR333333333333/2022-11-19/monthly')
+        .get('/api/tasks/group/GR2020202020202020/2022-11-19/monthly')
         .set('authorization', `Bearer ${access_token1}`);
 
       expect(statusCode).toBe(200);
@@ -137,7 +137,7 @@ describe('Groups', () => {
 
     it('not found group', async () => {
       const { statusCode, body } = await request
-        .get('/api/tasks/group/GR444444444444/2022-11-19/daily')
+        .get('/api/tasks/group/GR4444444444444444/2022-11-19/daily')
         .set('authorization', `Bearer ${access_token1}`);
 
       expect(statusCode).toBe(404);
@@ -146,7 +146,7 @@ describe('Groups', () => {
 
     it('not group user', async () => {
       const { statusCode, body } = await request
-        .get('/api/tasks/group/GR333333333333/2022-11-19/daily')
+        .get('/api/tasks/group/GR2020202020202020/2022-11-19/daily')
         .set('authorization', `Bearer ${access_token2}`);
 
       expect(statusCode).toBe(403);
@@ -157,19 +157,19 @@ describe('Groups', () => {
   describe('get task', () => {
     it('task, task user list', async () => {
       const { statusCode, body } = await request
-        .get('/api/tasks/TS666666666666')
+        .get('/api/tasks/TS3030303030303030')
         .set('authorization', `Bearer ${access_token1}`);
 
       expect(statusCode).toBe(200);
-      expect(body.data.task.task_id).toBe('TS666666666666');
-      expect(body.data.task.user_id).toBe('US111111111111');
+      expect(body.data.task.task_id).toBe('TS3030303030303030');
+      expect(body.data.task.user_id).toBe('US1111111111111111');
       expect(body.data.task.category_id).toBe(createTaskData.successWithoutRepeat.category_id);
       expect(body.data.task.task_title).toBe(createTaskData.successWithoutRepeat.task_title);
       expect(body.data.task.excute_at).toBe(createTaskData.successWithoutRepeat.excute_at);
       expect(body.data.task.start_repeat_task_id).toBeNull();
 
       body.data.task_user_list.forEach((task_user: TaskUser) => {
-        expect(task_user.task_id).toBe('TS666666666666');
+        expect(task_user.task_id).toBe('TS3030303030303030');
         expect(createTaskData.successWithoutRepeat.add_user_ids).toContain(task_user.user_id);
         expect(typeof task_user.is_end).toBe('number');
       });
@@ -177,7 +177,7 @@ describe('Groups', () => {
 
     it('not found task', async () => {
       const { statusCode, body } = await request
-        .get('/api/tasks/TS555555555555')
+        .get('/api/tasks/TS5555555555555555')
         .set('authorization', `Bearer ${access_token1}`);
 
       expect(statusCode).toBe(404);
@@ -186,7 +186,7 @@ describe('Groups', () => {
 
     it('not user in task or creator', async () => {
       const { statusCode, body } = await request
-        .get('/api/tasks/TS666666666666')
+        .get('/api/tasks/TS3030303030303030')
         .set('authorization', `Bearer ${access_token2}`);
 
       expect(statusCode).toBe(403);
@@ -197,18 +197,18 @@ describe('Groups', () => {
   describe('update task user', () => {
     it('success', async () => {
       const { statusCode } = await request
-        .put('/api/tasks/TS666666666666/user')
+        .put('/api/tasks/TS3030303030303030/user')
         .set('authorization', `Bearer ${access_token1}`)
         .send({ is_end: 1 });
 
       expect(statusCode).toBe(200);
 
-      const taskUserList = <TaskUser[]>await testTasksRepository.findTaskUserByTaskId('TS666666666666');
+      const taskUserList = <TaskUser[]>await testTasksRepository.findTaskUserByTaskId('TS3030303030303030');
 
       taskUserList.forEach(taskUser => {
-        expect(taskUser.task_id).toBe('TS666666666666');
+        expect(taskUser.task_id).toBe('TS3030303030303030');
 
-        if (taskUser.user_id === 'US111111111111') {
+        if (taskUser.user_id === 'US1111111111111111') {
           expect(taskUser.is_end).toBe(1);
         }
       });
@@ -216,7 +216,7 @@ describe('Groups', () => {
 
     it('parameter error', async () => {
       const { statusCode, body } = await request
-        .put('/api/tasks/TS666666666666/user')
+        .put('/api/tasks/TS3030303030303030/user')
         .set('authorization', `Bearer ${access_token1}`)
         .send({ is_end: '1' });
 
@@ -226,7 +226,7 @@ describe('Groups', () => {
 
     it('not found task', async () => {
       const { statusCode, body } = await request
-        .put('/api/tasks/TS555555555555/user')
+        .put('/api/tasks/TS5555555555555555/user')
         .set('authorization', `Bearer ${access_token1}`)
         .send({ is_end: 1 });
 
@@ -236,7 +236,7 @@ describe('Groups', () => {
 
     it('not user in task', async () => {
       const { statusCode, body } = await request
-        .put('/api/tasks/TS666666666666/user')
+        .put('/api/tasks/TS3030303030303030/user')
         .set('authorization', `Bearer ${access_token2}`)
         .send({ is_end: 1 });
 
@@ -248,27 +248,27 @@ describe('Groups', () => {
   describe('update task', () => {
     it('success', async () => {
       const { statusCode, body } = await request
-        .put('/api/tasks/TS666666666666')
+        .put('/api/tasks/TS3030303030303030')
         .set('authorization', `Bearer ${access_token1}`)
         .send(updateTaskData.success);
 
       expect(statusCode).toBe(200);
-      expect(body.data.task.task_id).toBe('TS666666666666');
-      expect(body.data.task.user_id).toBe('US111111111111');
+      expect(body.data.task.task_id).toBe('TS3030303030303030');
+      expect(body.data.task.user_id).toBe('US1111111111111111');
       expect(body.data.task.category_id).toBe(createTaskData.successWithoutRepeat.category_id);
       expect(body.data.task.task_title).toBe(updateTaskData.success.task_title);
       expect(body.data.task.excute_at).toBe(createTaskData.successWithoutRepeat.excute_at);
       expect(body.data.task.start_repeat_task_id).toBeNull();
 
       body.data.task_user_list.forEach((task_user: TaskUser) => {
-        expect(task_user.task_id).toBe('TS666666666666');
+        expect(task_user.task_id).toBe('TS3030303030303030');
         expect(updateTaskData.success.delete_user_ids).not.toContain(task_user.user_id);
       });
     });
 
     it('parameter error', async () => {
       const { statusCode, body } = await request
-        .put('/api/tasks/TS666666666666')
+        .put('/api/tasks/TS3030303030303030')
         .set('authorization', `Bearer ${access_token1}`)
         .send({ ...updateTaskData.success, add_user_ids: [] });
 
@@ -278,7 +278,7 @@ describe('Groups', () => {
 
     it('not found task', async () => {
       const { statusCode, body } = await request
-        .put('/api/tasks/TS555555555555')
+        .put('/api/tasks/TS5555555555555555')
         .set('authorization', `Bearer ${access_token1}`)
         .send(updateTaskData.success);
 
@@ -288,7 +288,7 @@ describe('Groups', () => {
 
     it('not user in task or creator', async () => {
       const { statusCode, body } = await request
-        .put('/api/tasks/TS666666666666')
+        .put('/api/tasks/TS3030303030303030')
         .set('authorization', `Bearer ${access_token2}`)
         .send(updateTaskData.success);
 
@@ -300,7 +300,7 @@ describe('Groups', () => {
   describe('delete task', () => {
     it('not user in task or creator', async () => {
       const { statusCode, body } = await request
-        .delete('/api/tasks/TS666666666666')
+        .delete('/api/tasks/TS3030303030303030')
         .set('authorization', `Bearer ${access_token2}`)
         .send(updateTaskData.success);
 
@@ -310,20 +310,20 @@ describe('Groups', () => {
 
     it('success', async () => {
       const { statusCode } = await request
-        .delete('/api/tasks/TS666666666666')
+        .delete('/api/tasks/TS3030303030303030')
         .set('authorization', `Bearer ${access_token1}`)
         .send(updateTaskData.success);
 
       expect(statusCode).toBe(200);
 
-      const task = <undefined>await testTasksRepository.findTaskByTaskId('TS666666666666');
+      const task = <undefined>await testTasksRepository.findTaskByTaskId('TS3030303030303030');
 
       expect(task).toBeUndefined();
     });
 
     it('not found task', async () => {
       const { statusCode, body } = await request
-        .delete('/api/tasks/TS555555555555')
+        .delete('/api/tasks/TS5555555555555555')
         .set('authorization', `Bearer ${access_token1}`)
         .send(updateTaskData.success);
 

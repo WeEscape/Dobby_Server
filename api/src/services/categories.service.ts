@@ -1,8 +1,8 @@
 import { CreateCategoryDto } from '../dtos/categories/createCategory.dto';
 import { Category } from '../entities/category.entity';
+import { Task } from '../entities/task.entity';
 import { BadRequestError } from '../exceptions/BadRequest.exception';
 import { NotFoundError } from '../exceptions/NotFound.exception';
-import { CategoryInfo } from '../interfaces/categoryInfo.interface';
 import { CategoriesRepository } from '../repositories/categories.repository';
 import { errorMessage } from '../utils/message.util';
 import { GroupsService } from './groups.service';
@@ -25,14 +25,14 @@ export class CategoriesService {
   }
 
   /** id별 카테고리 조회 */
-  private async getCategoryByCategoryId(user_id: string, category_id: string): Promise<CategoryInfo> {
-    const categoryInfo = await this.categoriesRepository.findCategoryByCategoryId(category_id);
-    if (!categoryInfo) {
+  private async getCategoryByCategoryId(user_id: string, category_id: string): Promise<Category> {
+    const category = await this.categoriesRepository.findCategoryByCategoryId(category_id);
+    if (!category) {
       throw new NotFoundError(errorMessage.notFound);
     }
-    await this.groupsService.validateUserInGroup(user_id, categoryInfo.group_id);
+    await this.groupsService.validateUserInGroup(user_id, category.group_id);
 
-    return categoryInfo;
+    return category;
   }
 
   /** 카테고리 그룹 참여 여부 */
@@ -44,13 +44,14 @@ export class CategoriesService {
   async createCategory(
     user_id: string,
     createCategoryDto: CreateCategoryDto,
-  ): Promise<{ category_info: CategoryInfo }> {
+  ): Promise<{ category: Category; task_list: Task[] | [] }> {
     await this.groupsService.validateUserInGroup(user_id, createCategoryDto.group_id);
     await this.validateUnqiueCategoryTitle(createCategoryDto.group_id, createCategoryDto.category_title);
 
-    const categoryInfo = await this.categoriesRepository.createCategory({ user_id, ...createCategoryDto });
+    const category = await this.categoriesRepository.createCategory({ user_id, ...createCategoryDto });
+    const taskList = await this.categoriesRepository.findTasksByCategoryId(category.category_id);
 
-    return { category_info: categoryInfo };
+    return { category, task_list: taskList };
   }
 
   /** 카테고리 목록 조회 */
@@ -63,10 +64,11 @@ export class CategoriesService {
   }
 
   /** 카테고리 조회 */
-  async getCategory(user_id: string, category_id: string): Promise<{ category_info: CategoryInfo }> {
-    const categoryInfo = await this.getCategoryByCategoryId(user_id, category_id);
+  async getCategory(user_id: string, category_id: string): Promise<{ category: Category; task_list: Task[] | [] }> {
+    const category = await this.getCategoryByCategoryId(user_id, category_id);
+    const taskList = await this.categoriesRepository.findTasksByCategoryId(category_id);
 
-    return { category_info: categoryInfo };
+    return { category, task_list: taskList };
   }
 
   /** 카테고리 수정 */
@@ -74,17 +76,18 @@ export class CategoriesService {
     user_id: string,
     category_id: string,
     category_title: string,
-  ): Promise<{ category_info: CategoryInfo }> {
-    const existCategoryinfo = await this.getCategoryByCategoryId(user_id, category_id);
-    await this.validateUnqiueCategoryTitle(existCategoryinfo.group_id, category_title);
+  ): Promise<{ category: Category; task_list: Task[] | [] }> {
+    const existCategory = await this.getCategoryByCategoryId(user_id, category_id);
+    await this.validateUnqiueCategoryTitle(existCategory.group_id, category_title);
 
-    const categoryInfo = await this.categoriesRepository.updateCategory({ category_id, category_title });
+    const category = await this.categoriesRepository.updateCategory({ category_id, category_title });
+    const taskList = await this.categoriesRepository.findTasksByCategoryId(category_id);
 
-    return { category_info: categoryInfo };
+    return { category, task_list: taskList };
   }
 
   /** 카테고리 삭제 */
-  async deleteeCategory(user_id: string, category_id: string): Promise<void> {
+  async deleteCategory(user_id: string, category_id: string): Promise<void> {
     await this.validateUserInCategoryGroup(user_id, category_id);
 
     await this.categoriesRepository.deleteCategory({ category_id });

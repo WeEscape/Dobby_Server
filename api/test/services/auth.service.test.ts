@@ -19,7 +19,7 @@ describe('Auth Service', () => {
     it('kakao', async () => {
       const result = await testAuthService.register(registerData.kakao);
 
-      expect(result.user.user_id).toBe('US111111111111');
+      expect(result.user.user_id).toBe('US1111111111111111');
       expect(result.user.social_type).toBe(registerData.kakao.social_type);
       expect(result.user.user_name).toBe(registerData.kakao.user_name);
       expect(result.user.profile_color).toBe(registerData.kakao.profile_color);
@@ -28,7 +28,7 @@ describe('Auth Service', () => {
     it('apple', async () => {
       const result = await testAuthService.register(registerData.apple);
 
-      expect(result.user.user_id).toBe('US222222222222');
+      expect(result.user.user_id).toBe('US1010101010101010');
       expect(result.user.social_type).toBe(registerData.apple.social_type);
       expect(result.user.user_name).toBe(registerData.apple.user_name);
       expect(result.user.profile_color).toBe(registerData.apple.profile_color);
@@ -67,7 +67,7 @@ describe('Auth Service', () => {
 
   describe('logout', () => {
     it('success', async () => {
-      await testAuthService.logout('US111111111111');
+      await testAuthService.logout('US1111111111111111');
     });
   });
 
@@ -101,7 +101,7 @@ describe('Auth Service', () => {
 
   describe('withdraw', () => {
     it('success', async () => {
-      await testAuthService.withdraw('US111111111111');
+      await testAuthService.withdraw('US1111111111111111');
     });
   });
 
@@ -109,6 +109,9 @@ describe('Auth Service', () => {
     await testAuthRepository.sendQuerys([
       { query: `DELETE FROM USERS;` },
       { query: `DELETE FROM USERS_REFRESH_TOKENS;` },
+      { query: `DELETE FROM GROUPS;` },
+      { query: `DELETE FROM GROUPS_USERS;` },
+      { query: `DELETE FROM CATEGORIES;` },
     ]);
   });
 });

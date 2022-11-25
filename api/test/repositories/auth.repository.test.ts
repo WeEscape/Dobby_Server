@@ -2,7 +2,7 @@ import { testConatiner } from '../server';
 import { registerData } from '../datas/auth/register.data';
 import { TestGenerator } from './base/generator';
 import { User } from '../../src/entities/user.entity';
-import { config } from '../../src/config';
+import { defaultValue } from '../../src/utils/default.util';
 
 const testAuthRepository = testConatiner.getAuthRepository();
 
@@ -15,16 +15,16 @@ describe('Auth Repository', () => {
     it('success', async () => {
       const user = await testAuthRepository.createUser(registerData.kakao);
 
-      expect(user.user_id).toBe('US111111111111');
+      expect(user.user_id).toBe('US1111111111111111');
       expect(user.user_name).toBe(registerData.kakao.user_name);
-      expect(user.profile_image_url).toBe(config.default.profileImage);
+      expect(user.profile_image_url).toBe(defaultValue.profileImage);
       expect(user.profile_color).toBe(registerData.kakao.profile_color);
     });
   });
 
   describe('find by user id', () => {
     it('user', async () => {
-      const user = <User>await testAuthRepository.findByUserId('US111111111111');
+      const user = <User>await testAuthRepository.findByUserId('US1111111111111111');
 
       expect(user).toBeDefined();
     });
@@ -46,7 +46,7 @@ describe('Auth Repository', () => {
   describe('connect user', () => {
     it('success', async () => {
       await testAuthRepository.connectUser({
-        user_id: 'US111111111111',
+        user_id: 'US1111111111111111',
       });
 
       const user = <User>(
@@ -62,7 +62,7 @@ describe('Auth Repository', () => {
 
   describe('disconnect user', () => {
     it('success', async () => {
-      await testAuthRepository.disconnectUser({ user_id: 'US111111111111' });
+      await testAuthRepository.disconnectUser({ user_id: 'US1111111111111111' });
 
       const user = <User>(
         await testAuthRepository.findBySocialIdAndSocialType(
@@ -79,7 +79,7 @@ describe('Auth Repository', () => {
   describe('upsert refresh ', () => {
     it('success', async () => {
       await testAuthRepository.upsertRefreshToken({
-        user_id: 'US111111111111',
+        user_id: 'US1111111111111111',
         ip: '127.0.0.1',
         token: 'refresh_token',
       });
@@ -90,7 +90,7 @@ describe('Auth Repository', () => {
     it('user', async () => {
       const user = <User>await testAuthRepository.findUserByRefreshToken('refresh_token', '127.0.0.1');
 
-      expect(user.user_id).toBe('US111111111111');
+      expect(user.user_id).toBe('US1111111111111111');
     });
 
     it('undefined', async () => {
@@ -102,9 +102,9 @@ describe('Auth Repository', () => {
 
   describe('delete user', () => {
     it('success', async () => {
-      await testAuthRepository.deleteUser({ user_id: 'US111111111111' });
+      await testAuthRepository.deleteUser({ user_id: 'US1111111111111111' });
 
-      const user = <User>await testAuthRepository.findByUserId('US111111111111');
+      const user = <User>await testAuthRepository.findByUserId('US1111111111111111');
 
       expect(user.social_id).toBeNull();
       expect(user.deleted_at).toBeDefined();
@@ -115,6 +115,9 @@ describe('Auth Repository', () => {
     await testAuthRepository.sendQuerys([
       { query: `DELETE FROM USERS;` },
       { query: `DELETE FROM USERS_REFRESH_TOKENS;` },
+      { query: `DELETE FROM GROUPS;` },
+      { query: `DELETE FROM GROUPS_USERS;` },
+      { query: `DELETE FROM CATEGORIES;` },
     ]);
   });
 });

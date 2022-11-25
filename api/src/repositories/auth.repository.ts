@@ -1,6 +1,6 @@
-import { config } from '../config';
 import { ProfileColor, SocialType, User } from '../entities/user.entity';
 import { UserRefreshToken } from '../entities/userRefreshToken.entity';
+import { defaultValue } from '../utils/default.util';
 import { RdbmsRepository, SelectOptions } from './base/rdbms.repository';
 
 export class AuthRepository extends RdbmsRepository {
@@ -50,11 +50,14 @@ export class AuthRepository extends RdbmsRepository {
     profile_color: ProfileColor;
     apple_refresh_token?: string;
   }): Promise<User> {
-    const userId = 'US' + this.generateId();
+    const querys = [];
 
-    await this.sendQuerys([
-      {
-        query: `
+    const userId = 'US' + this.generateId();
+    const groupId = 'GR' + this.generateId();
+    const inviteCode = this.generator.generateRandomString(6);
+
+    querys.push({
+      query: `
           INSERT INTO USERS(
             user_id,
             social_id,
@@ -73,17 +76,67 @@ export class AuthRepository extends RdbmsRepository {
             ?
           );
         `,
-        params: [
-          userId,
-          options.social_id,
-          options.social_type,
-          options.user_name,
-          options?.profile_image_url || config.default.profileImage,
-          options.profile_color,
-          options?.apple_refresh_token || null,
-        ],
-      },
-    ]);
+      params: [
+        userId,
+        options.social_id,
+        options.social_type,
+        options.user_name,
+        options?.profile_image_url || defaultValue.profileImage,
+        options.profile_color,
+        options?.apple_refresh_token || null,
+      ],
+    });
+    querys.push({
+      query: `
+          INSERT INTO GROUPS(
+            group_id,
+            user_id,
+            group_title,
+            invite_code
+          ) VALUES (
+            ?,
+            ?,
+            ?,
+            ?
+          );
+        `,
+      params: [groupId, userId, userId, inviteCode],
+    });
+    querys.push({
+      query: `
+          INSERT INTO GROUPS_USERS(
+            group_id,
+            user_id
+          ) VALUES (
+            ?,
+            ?
+          );
+        `,
+      params: [groupId, userId],
+    });
+
+    defaultValue.categoryTitles.forEach(title => {
+      const categoryId = 'CT' + this.generateId();
+
+      querys.push({
+        query: `
+            INSERT INTO CATEGORIES(
+              category_id,
+              user_id,
+              group_id,
+              category_title
+            ) VALUES (
+              ?,
+              ?,
+              ?,
+              ?
+            );
+          `,
+        params: [categoryId, userId, groupId, title],
+      });
+    });
+
+    await this.sendQuerys(querys);
 
     return <User>await this.findBySocialIdAndSocialType(options.social_id, options.social_type, {
       select: [
@@ -152,12 +205,22 @@ export class AuthRepository extends RdbmsRepository {
         query: `
           DELETE USERS_REFRESH_TOKENS, GROUPS_USERS, TASKS_USERS
           FROM USERS
-          LEFT JOIN USERS_REFRESH_TOKENS USING (user_id)
+          LEFT JOIN USERS_REFRESH_TOKENS USING(user_id)
           LEFT JOIN GROUPS_USERS USING(user_id)
           LEFT JOIN TASKS_USERS USING(user_id)
           WHERE user_id = ?;
         `,
         params: [options.user_id],
+      },
+      {
+        query: `
+          DELETE GROUPS, CATEGORIES, TASKS
+          FROM GROUPS
+          LEFT JOIN CATEGORIES USING(group_id)
+          LEFT JOIN TASKS USING(category_id)
+          LEFT JOIN GROUPS_USERS USING(group_id)
+          WHERE GROUPS_USERS.user_id IS NULL;
+        `,
       },
     ]);
   }

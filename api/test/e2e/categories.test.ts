@@ -1,5 +1,5 @@
 import supertest from 'supertest';
-import { CategoryInfo } from '../../src/interfaces/categoryInfo.interface';
+import { Category } from '../../src/entities/category.entity';
 import { errorMessage } from '../../src/utils/message.util';
 import { loginData } from '../datas/auth/login.data';
 import { registerData } from '../datas/auth/register.data';
@@ -38,10 +38,10 @@ describe('Groups', () => {
         .send(createCategoryData.success);
 
       expect(statusCode).toBe(200);
-      expect(body.data.category_info.category_id).toBe('CT555555555555');
-      expect(body.data.category_info.user_id).toBe('US111111111111');
-      expect(body.data.category_info.group_id).toBe(createCategoryData.success.group_id);
-      expect(body.data.category_info.category_title).toBe(createCategoryData.success.category_title);
+      expect(body.data.category.category_id).toBe('CT2929292929292929');
+      expect(body.data.category.user_id).toBe('US1111111111111111');
+      expect(body.data.category.group_id).toBe(createCategoryData.success.group_id);
+      expect(body.data.category.category_title).toBe(createCategoryData.success.category_title);
     });
 
     it('parameter error', async () => {
@@ -88,21 +88,21 @@ describe('Groups', () => {
   describe('get categories', () => {
     it('success', async () => {
       const { statusCode, body } = await request
-        .get('/api/categories/group/GR333333333333')
+        .get('/api/categories/group/GR2020202020202020')
         .set('authorization', `Bearer ${access_token1}`);
 
       expect(statusCode).toBe(200);
-      body.data.category_list.forEach((category: CategoryInfo) => {
+      body.data.category_list.forEach((category: Category) => {
         expect(typeof category.category_id).toBe('string');
         expect(typeof category.user_id).toBe('string');
-        expect(category.group_id).toBe('GR333333333333');
+        expect(category.group_id).toBe('GR2020202020202020');
         expect(typeof category.category_title).toBe('string');
       });
     });
 
     it('not found group', async () => {
       const { statusCode, body } = await request
-        .get('/api/categories/group/GR444444444444')
+        .get('/api/categories/group/GR4444444444444444')
         .set('authorization', `Bearer ${access_token1}`);
 
       expect(statusCode).toBe(404);
@@ -111,7 +111,7 @@ describe('Groups', () => {
 
     it('not group user', async () => {
       const { statusCode, body } = await request
-        .get('/api/categories/group/GR333333333333')
+        .get('/api/categories/group/GR2020202020202020')
         .set('authorization', `Bearer ${access_token2}`);
 
       expect(statusCode).toBe(403);
@@ -122,19 +122,19 @@ describe('Groups', () => {
   describe('get category', () => {
     it('success', async () => {
       const { statusCode, body } = await request
-        .get('/api/categories/CT555555555555')
+        .get('/api/categories/CT2929292929292929')
         .set('authorization', `Bearer ${access_token1}`);
 
       expect(statusCode).toBe(200);
-      expect(body.data.category_info.category_id).toBe('CT555555555555');
-      expect(body.data.category_info.user_id).toBe('US111111111111');
-      expect(body.data.category_info.group_id).toBe(createCategoryData.success.group_id);
-      expect(body.data.category_info.category_title).toBe(createCategoryData.success.category_title);
+      expect(body.data.category.category_id).toBe('CT2929292929292929');
+      expect(body.data.category.user_id).toBe('US1111111111111111');
+      expect(body.data.category.group_id).toBe(createCategoryData.success.group_id);
+      expect(body.data.category.category_title).toBe(createCategoryData.success.category_title);
     });
 
     it('not found category', async () => {
       const { statusCode, body } = await request
-        .get('/api/categories/CT444444444444')
+        .get('/api/categories/CT1111111111111111')
         .set('authorization', `Bearer ${access_token1}`);
 
       expect(statusCode).toBe(404);
@@ -143,7 +143,7 @@ describe('Groups', () => {
 
     it('not found category', async () => {
       const { statusCode, body } = await request
-        .get('/api/categories/CT555555555555')
+        .get('/api/categories/CT2929292929292929')
         .set('authorization', `Bearer ${access_token2}`);
 
       expect(statusCode).toBe(403);
@@ -154,20 +154,20 @@ describe('Groups', () => {
   describe('update category', () => {
     it('success', async () => {
       const { statusCode, body } = await request
-        .put('/api/categories/CT555555555555')
+        .put('/api/categories/CT2929292929292929')
         .set('authorization', `Bearer ${access_token1}`)
         .send({ category_title: 'update_category1' });
 
       expect(statusCode).toBe(200);
-      expect(body.data.category_info.category_id).toBe('CT555555555555');
-      expect(body.data.category_info.user_id).toBe('US111111111111');
-      expect(body.data.category_info.group_id).toBe(createCategoryData.success.group_id);
-      expect(body.data.category_info.category_title).toBe('update_category1');
+      expect(body.data.category.category_id).toBe('CT2929292929292929');
+      expect(body.data.category.user_id).toBe('US1111111111111111');
+      expect(body.data.category.group_id).toBe(createCategoryData.success.group_id);
+      expect(body.data.category.category_title).toBe('update_category1');
     });
 
     it('not found category', async () => {
       const { statusCode, body } = await request
-        .put('/api/categories/CT444444444444')
+        .put('/api/categories/CT1111111111111111')
         .set('authorization', `Bearer ${access_token1}`)
         .send({ category_title: 'update_category1' });
 
@@ -182,7 +182,7 @@ describe('Groups', () => {
         .send({ ...createCategoryData.success, category_title: 'category2' });
 
       const { statusCode, body } = await request
-        .put('/api/categories/CT555555555555')
+        .put('/api/categories/CT2929292929292929')
         .set('authorization', `Bearer ${access_token1}`)
         .send({ category_title: 'category2' });
 
@@ -192,7 +192,7 @@ describe('Groups', () => {
 
     it('not found category', async () => {
       const { statusCode, body } = await request
-        .put('/api/categories/CT555555555555')
+        .put('/api/categories/CT2929292929292929')
         .set('authorization', `Bearer ${access_token2}`)
         .send({ category_title: 'update_category1' });
 
@@ -204,19 +204,19 @@ describe('Groups', () => {
   describe('delete category', () => {
     it('success', async () => {
       const { statusCode } = await request
-        .delete('/api/categories/CT555555555555')
+        .delete('/api/categories/CT2929292929292929')
         .set('authorization', `Bearer ${access_token1}`);
 
       expect(statusCode).toBe(200);
 
-      const categoryInfo = <undefined>await testCategoriesRepository.findCategoryByCategoryId('CT555555555555');
+      const category = <undefined>await testCategoriesRepository.findCategoryByCategoryId('CT2929292929292929');
 
-      expect(categoryInfo).toBeUndefined();
+      expect(category).toBeUndefined();
     });
 
     it('not found category', async () => {
       const { statusCode, body } = await request
-        .delete('/api/categories/CT444444444444')
+        .delete('/api/categories/CT1111111111111111')
         .set('authorization', `Bearer ${access_token1}`);
 
       expect(statusCode).toBe(404);
@@ -225,7 +225,7 @@ describe('Groups', () => {
 
     it('not group user', async () => {
       const { statusCode, body } = await request
-        .delete('/api/categories/CT666666666666')
+        .delete('/api/categories/CT2525252525252525')
         .set('authorization', `Bearer ${access_token2}`);
 
       expect(statusCode).toBe(403);

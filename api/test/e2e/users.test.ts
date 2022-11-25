@@ -26,24 +26,24 @@ describe('Users', () => {
       const { statusCode, body } = await request.get('/api/users/my').set('authorization', `Bearer ${access_token}`);
 
       expect(statusCode).toBe(200);
-      expect(body.data.user_info.user_id).toBe('US111111111111');
-      expect(body.data.user_info.social_type).toBe(registerData.kakao.social_type);
-      expect(body.data.user_info.user_name).toBe(registerData.kakao.user_name);
-      expect(body.data.user_info.profile_color).toBe(registerData.kakao.profile_color);
+      expect(body.data.user.user_id).toBe('US1111111111111111');
+      expect(body.data.user.social_type).toBe(registerData.kakao.social_type);
+      expect(body.data.user.user_name).toBe(registerData.kakao.user_name);
+      expect(body.data.user.profile_color).toBe(registerData.kakao.profile_color);
     });
   });
 
   describe('get user by user id', () => {
     it('success', async () => {
       const { statusCode, body } = await request
-        .get('/api/users/US111111111111')
+        .get('/api/users/US1111111111111111')
         .set('authorization', `Bearer ${access_token}`);
 
       expect(statusCode).toBe(200);
-      expect(body.data.user_info.user_id).toBe('US111111111111');
-      expect(body.data.user_info.social_type).toBe(registerData.kakao.social_type);
-      expect(body.data.user_info.user_name).toBe(registerData.kakao.user_name);
-      expect(body.data.user_info.profile_color).toBe(registerData.kakao.profile_color);
+      expect(body.data.user.user_id).toBe('US1111111111111111');
+      expect(body.data.user.social_type).toBe(registerData.kakao.social_type);
+      expect(body.data.user.user_name).toBe(registerData.kakao.user_name);
+      expect(body.data.user.profile_color).toBe(registerData.kakao.profile_color);
     });
 
     it('not found user', async () => {
@@ -59,15 +59,15 @@ describe('Users', () => {
   describe('update user', () => {
     it('success', async () => {
       const { statusCode, body } = await request
-        .put('/api/users/US111111111111')
+        .put('/api/users/US1111111111111111')
         .set('authorization', `Bearer ${access_token}`)
         .send(updateUserData.success);
 
       expect(statusCode).toBe(200);
-      expect(body.data.user_info.user_id).toBe('US111111111111');
-      expect(body.data.user_info.social_type).toBe(registerData.kakao.social_type);
-      expect(body.data.user_info.user_name).toBe(updateUserData.success.user_name);
-      expect(body.data.user_info.profile_color).toBe(registerData.kakao.profile_color);
+      expect(body.data.user.user_id).toBe('US1111111111111111');
+      expect(body.data.user.social_type).toBe(registerData.kakao.social_type);
+      expect(body.data.user.user_name).toBe(updateUserData.success.user_name);
+      expect(body.data.user.profile_color).toBe(registerData.kakao.profile_color);
     });
   });
 
@@ -75,6 +75,9 @@ describe('Users', () => {
     await testUsersRepository.sendQuerys([
       { query: `DELETE FROM USERS;` },
       { query: `DELETE FROM USERS_REFRESH_TOKENS;` },
+      { query: `DELETE FROM GROUPS;` },
+      { query: `DELETE FROM GROUPS_USERS;` },
+      { query: `DELETE FROM CATEGORIES;` },
     ]);
   });
 });

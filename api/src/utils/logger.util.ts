@@ -49,23 +49,21 @@ const options = {
 export const logger: Logger = createLogger(options);
 
 /** logs file 저장 설정 */
-if (process.env.NODE_ENV === 'production') {
-  logger.add(
-    new winstonDaily({
-      level: 'error',
-      datePattern: 'YYYY-MM-DD',
-      dirname: 'logs/error',
-      filename: `%DATE%.error.log`,
-      maxFiles: 7,
-    }),
-  );
-  logger.add(
-    new winstonDaily({
-      level: 'debug',
-      datePattern: 'YYYY-MM-DD',
-      dirname: 'logs/debug',
-      filename: `%DATE%.debug.log`,
-      maxFiles: 7,
-    }),
-  );
-}
+logger.add(
+  new winstonDaily({
+    level: 'error',
+    datePattern: 'YYYY-MM-DD',
+    dirname: 'logs/error',
+    filename: `%DATE%.error.log`,
+    maxFiles: 7,
+  }),
+);
+logger.add(
+  new winstonDaily({
+    level: 'debug',
+    datePattern: 'YYYY-MM-DD',
+    dirname: 'logs/debug',
+    filename: `%DATE%.debug.log`,
+    maxFiles: 7,
+  }),
+);

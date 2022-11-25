@@ -118,21 +118,17 @@ export class TasksRepository extends RdbmsRepository {
     excute_at: string;
     add_user_ids?: string[];
   }): Promise<Task> {
-    const connection = await this.getConnection();
+    const querys = [];
 
-    try {
-      // 트랜잭션 처리
-      await connection.beginTransaction();
+    const taskId = 'TS' + this.generateId();
+    let excuteAt = new Date(options.excute_at);
 
-      const taskId = 'TS' + this.generateId();
-      let excuteAt = new Date(options.excute_at);
+    if (options?.repeat_cycle && options?.end_repeat_at) {
+      let nextTaskId = taskId;
 
-      if (options?.repeat_cycle && options?.end_repeat_at) {
-        let nextTaskId = taskId;
-
-        while (excuteAt <= this.getLastDateAfter3Month()) {
-          await connection.query(
-            `
+      while (excuteAt <= this.getLastDateAfter3Month()) {
+        querys.push({
+          query: `
               INSERT INTO TASKS(
                 task_id,
                 user_id,
@@ -157,24 +153,24 @@ export class TasksRepository extends RdbmsRepository {
                 ?
               );
             `,
-            [
-              nextTaskId,
-              options.user_id,
-              options.category_id,
-              options.task_title,
-              options.repeat_cycle,
-              options.memo || null,
-              options.notice_available ?? 1,
-              new Date(options.end_repeat_at),
-              excuteAt,
-              taskId,
-            ],
-          );
+          params: [
+            nextTaskId,
+            options.user_id,
+            options.category_id,
+            options.task_title,
+            options.repeat_cycle,
+            options.memo || null,
+            options.notice_available ?? 1,
+            new Date(options.end_repeat_at),
+            excuteAt,
+            taskId,
+          ],
+        });
 
-          if (options?.add_user_ids) {
-            for await (const user_id of options.add_user_ids) {
-              await connection.query(
-                `
+        if (options?.add_user_ids) {
+          options.add_user_ids.forEach(user_id => {
+            querys.push({
+              query: `
                   INSERT INTO TASKS_USERS(
                     task_id,
                     user_id
@@ -183,79 +179,73 @@ export class TasksRepository extends RdbmsRepository {
                     ?
                   );
                 `,
-                [nextTaskId, user_id],
-              );
-            }
-          }
-
-          excuteAt = this.getNextExcuteAt(options.repeat_cycle, excuteAt);
-          nextTaskId = 'TS' + this.generateId();
+              params: [nextTaskId, user_id],
+            });
+          });
         }
-      } else {
-        await connection.query(
-          `
-            INSERT INTO TASKS(
-              task_id,
-              user_id,
-              category_id,
-              task_title,
-              repeat_cycle,
-              memo,
-              notice_available,
-              end_repeat_at,
-              excute_at
-            ) VALUES (
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?
-            );
-          `,
-          [
-            taskId,
-            options.user_id,
-            options.category_id,
-            options.task_title,
-            options.repeat_cycle || null,
-            options.memo || null,
-            options.notice_available ?? 1,
-            options.end_repeat_at || null,
-            excuteAt,
-          ],
-        );
 
-        if (options?.add_user_ids) {
-          for await (const user_id of options.add_user_ids) {
-            await connection.query(
-              `
-                    INSERT INTO TASKS_USERS(
-                      task_id,
-                      user_id
-                    ) VALUES (
-                      ?,
-                      ?
-                    );
-                  `,
-              [taskId, user_id],
-            );
-          }
-        }
+        excuteAt = this.getNextExcuteAt(options.repeat_cycle, excuteAt);
+        nextTaskId = 'TS' + this.generateId();
       }
+    } else {
+      querys.push({
+        query: `
+              INSERT INTO TASKS(
+                task_id,
+                user_id,
+                category_id,
+                task_title,
+                repeat_cycle,
+                memo,
+                notice_available,
+                end_repeat_at,
+                excute_at
+              ) VALUES (
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?,
+                ?
+              );
+            `,
+        params: [
+          taskId,
+          options.user_id,
+          options.category_id,
+          options.task_title,
+          options.repeat_cycle || null,
+          options.memo || null,
+          options.notice_available ?? 1,
+          options.end_repeat_at || null,
+          excuteAt,
+        ],
+      });
 
-      await connection.commit();
-
-      return <Task>await this.findTaskByTaskId(taskId);
-    } catch (err) {
-      await connection.rollback();
-      throw new InternalServerError(`Rdbms query: ${err}`);
-    } finally {
-      connection.release();
+      if (options?.add_user_ids) {
+        options.add_user_ids.forEach(user_id => {
+          querys.push({
+            query: `
+                      INSERT INTO TASKS_USERS(
+                        task_id,
+                        user_id
+                      ) VALUES (
+                        ?,
+                        ?
+                      );
+                    `,
+            params: [taskId, user_id],
+          });
+        });
+      }
     }
+
+    await this.sendQuerys(querys);
+
+    return <Task>await this.findTaskByTaskId(taskId);
   }
 
   /** 집안일 수정 */
@@ -269,14 +259,10 @@ export class TasksRepository extends RdbmsRepository {
     add_user_ids?: string[];
     delete_user_ids?: string[];
   }): Promise<Task> {
-    const connection = await this.getConnection();
+    const querys = [];
 
-    try {
-      // 트랜잭션 처리
-      await connection.beginTransaction();
-
-      await connection.query(
-        `
+    querys.push({
+      query: `
           UPDATE TASKS SET
             category_id = COALESCE(?, category_id),
             task_title = COALESCE(?, task_title),
@@ -285,20 +271,20 @@ export class TasksRepository extends RdbmsRepository {
             excute_at = COALESCE(?, excute_at)
           WHERE task_id = ?;
         `,
-        [
-          options.category_id || null,
-          options.task_title || null,
-          options.memo || null,
-          options.notice_available ?? null,
-          options.excute_at ? new Date(options.excute_at) : null,
-          options.task_id,
-        ],
-      );
+      params: [
+        options.category_id || null,
+        options.task_title || null,
+        options.memo || null,
+        options.notice_available ?? null,
+        options.excute_at ? new Date(options.excute_at) : null,
+        options.task_id,
+      ],
+    });
 
-      if (options?.add_user_ids) {
-        for await (const user_id of options.add_user_ids) {
-          await connection.query(
-            `
+    if (options?.add_user_ids) {
+      options.add_user_ids.forEach(user_id => {
+        querys.push({
+          query: `
               INSERT INTO TASKS_USERS(
                 task_id,
                 user_id
@@ -307,32 +293,26 @@ export class TasksRepository extends RdbmsRepository {
                 ?
               );
             `,
-            [options.task_id, user_id],
-          );
-        }
-      }
+          params: [options.task_id, user_id],
+        });
+      });
+    }
 
-      if (options?.delete_user_ids) {
-        for await (const user_id of options.delete_user_ids) {
-          await connection.query(
-            `
+    if (options?.delete_user_ids) {
+      options.delete_user_ids.forEach(user_id => {
+        querys.push({
+          query: `
               DELETE
               FROM TASKS_USERS
               WHERE task_id = ?
                 AND user_id = ?;
             `,
-            [options.task_id, user_id],
-          );
-        }
-      }
-
-      await connection.commit();
-    } catch (err) {
-      await connection.rollback();
-      throw new InternalServerError(`Rdbms query: ${err}`);
-    } finally {
-      connection.release();
+          params: [options.task_id, user_id],
+        });
+      });
     }
+
+    await this.sendQuerys(querys);
 
     return <Task>await this.findTaskByTaskId(options.task_id);
   }
@@ -397,7 +377,6 @@ export class TasksRepository extends RdbmsRepository {
 
         while (excuteAt <= this.getLastDateAfter3Month()) {
           const nextTaskId = 'TS' + this.generateId();
-          console.log(excuteAt);
 
           await connection.query(
             `

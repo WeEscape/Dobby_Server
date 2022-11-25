@@ -1,10 +1,11 @@
 import { Group } from '../entities/group.entity';
-import { GroupInfo } from '../interfaces/groupInfo.interface';
+import { User } from '../entities/user.entity';
+import { defaultValue } from '../utils/default.util';
 import { RdbmsRepository, SelectOptions } from './base/rdbms.repository';
 
 export class GroupsRepository extends RdbmsRepository {
   /** 그룹 제목별 그룹 조회 */
-  async findGroupInfoByGroupTitle(group_title: string, options?: SelectOptions) {
+  async findGroupInfoByGroupTitle(group_title: string, options?: SelectOptions): Promise<Group | undefined> {
     const selectField = options?.select.toString() || 'GROUPS.*';
 
     return (<Group[][] | [][]>await this.sendQuerys([
@@ -21,37 +22,47 @@ export class GroupsRepository extends RdbmsRepository {
   }
 
   /** 그룹 id별 그룹 조회 */
-  async findGroupInfoByGroupId(group_id: string, options?: SelectOptions): Promise<GroupInfo | undefined> {
-    const selectField = options?.select.toString() || 'GROUPS.*, GROUP_CONCAT(GROUPS_USERS.user_id) AS user_ids';
+  async findGroupInfoByGroupId(group_id: string, options?: SelectOptions): Promise<Group | undefined> {
+    const selectField = options?.select.toString() || 'GROUPS.*';
 
-    const groupInfo = (<any[][] | [][]>await this.sendQuerys([
+    return (<Group[][] | [][]>await this.sendQuerys([
       {
         query: `
           SELECT ${selectField}
           FROM GROUPS
-          LEFT JOIN GROUPS_USERS USING(group_id)
-          WHERE GROUPS.group_id = ?
-          GROUP BY GROUPS.group_id;
+          WHERE GROUPS.group_id = ?;
         `,
         params: [group_id],
       },
     ]))[0][0];
+  }
 
-    if (groupInfo?.user_ids) {
-      groupInfo.user_ids = groupInfo.user_ids.split(',');
-    }
+  async findGroupUserByGroupId(group_id: string, options?: SelectOptions): Promise<User[] | []> {
+    const selectField =
+      options?.select.toString() || 'USERS.user_id, USERS.user_name, USERS.profile_image_url, USERS.profile_color';
 
-    return groupInfo;
+    return (<User[][] | [][]>await this.sendQuerys([
+      {
+        query: `
+          SELECT ${selectField}
+          FROM GROUPS_USERS
+          JOIN USERS USING(user_id)
+          WHERE GROUPS_USERS.group_id = ?;
+        `,
+        params: [group_id],
+      },
+    ]))[0];
   }
 
   /** 그룹 생성 */
-  async createGroup(options: { user_id: string; group_title: string }): Promise<GroupInfo> {
+  async createGroup(options: { user_id: string; group_title: string }): Promise<Group> {
+    const querys = [];
+
     const groupId = 'GR' + this.generateId();
     const inviteCode = this.generator.generateRandomString(6);
 
-    await this.sendQuerys([
-      {
-        query: `
+    querys.push({
+      query: `
           INSERT INTO GROUPS(
             group_id,
             user_id,
@@ -64,10 +75,11 @@ export class GroupsRepository extends RdbmsRepository {
             ?
           );
         `,
-        params: [groupId, options.user_id, options.group_title, inviteCode],
-      },
-      {
-        query: `
+      params: [groupId, options.user_id, options.group_title, inviteCode],
+    });
+
+    querys.push({
+      query: `
           INSERT INTO GROUPS_USERS(
             group_id,
             user_id
@@ -76,15 +88,37 @@ export class GroupsRepository extends RdbmsRepository {
             ?
           );
         `,
-        params: [groupId, options.user_id],
-      },
-    ]);
+      params: [groupId, options.user_id],
+    });
 
-    return <GroupInfo>await this.findGroupInfoByGroupId(groupId);
+    defaultValue.categoryTitles.forEach(title => {
+      const categoryId = 'CT' + this.generateId();
+
+      querys.push({
+        query: `
+            INSERT INTO CATEGORIES(
+              category_id,
+              user_id,
+              group_id,
+              category_title
+            ) VALUES (
+              ?,
+              ?,
+              ?,
+              ?
+            );
+          `,
+        params: [categoryId, options.user_id, groupId, title],
+      });
+    });
+
+    await this.sendQuerys(querys);
+
+    return <Group>await this.findGroupInfoByGroupId(groupId);
   }
 
   /** 그룹 수정 */
-  async updateGroup(options: { group_id: string; group_title: string }): Promise<GroupInfo> {
+  async updateGroup(options: { group_id: string; group_title: string }): Promise<Group> {
     await this.sendQuerys([
       {
         query: `
@@ -96,7 +130,7 @@ export class GroupsRepository extends RdbmsRepository {
       },
     ]);
 
-    return <GroupInfo>await this.findGroupInfoByGroupId(options.group_id);
+    return <Group>await this.findGroupInfoByGroupId(options.group_id);
   }
 
   /** 그룹 삭제 */
@@ -118,7 +152,7 @@ export class GroupsRepository extends RdbmsRepository {
   }
 
   /** 그룹 회원 생성 */
-  async createGroupUser(options: { group_id: string; user_id: string }): Promise<GroupInfo> {
+  async createGroupUser(options: { group_id: string; user_id: string }): Promise<User[]> {
     await this.sendQuerys([
       {
         query: `
@@ -134,7 +168,7 @@ export class GroupsRepository extends RdbmsRepository {
       },
     ]);
 
-    return <GroupInfo>await this.findGroupInfoByGroupId(options.group_id);
+    return <User[]>await this.findGroupUserByGroupId(options.group_id);
   }
 
   /** 그룹 회원 삭제 */

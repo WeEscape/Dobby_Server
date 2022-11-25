@@ -61,6 +61,6 @@ export class RdbmsRepository {
 
   /** id 생성 */
   protected generateId(): string {
-    return this.generator.generateRandomString(12);
+    return this.generator.generateId();
   }
 }

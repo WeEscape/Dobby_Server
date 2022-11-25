@@ -13,4 +13,9 @@ export class Generator {
 
     return refreshTokenExpiredAt;
   }
+
+  /** id 생성 */
+  generateId(): string {
+    return this.generateRandomString(4) + new Date().getTime();
+  }
 }

@@ -1,5 +1,5 @@
 import { Category } from '../entities/category.entity';
-import { CategoryInfo } from '../interfaces/categoryInfo.interface';
+import { Task } from '../entities/task.entity';
 import { RdbmsRepository, SelectOptions } from './base/rdbms.repository';
 
 export class CategoriesRepository extends RdbmsRepository {
@@ -25,27 +25,35 @@ export class CategoriesRepository extends RdbmsRepository {
   }
 
   /** id별 카테고리 조회 */
-  async findCategoryByCategoryId(category_id: string, options?: SelectOptions): Promise<CategoryInfo | undefined> {
-    const selectField = options?.select.toString() || 'CATEGORIES.*, GROUP_CONCAT(TASKS.task_id) AS task_ids';
+  async findCategoryByCategoryId(category_id: string, options?: SelectOptions): Promise<Category | undefined> {
+    const selectField = options?.select.toString() || 'CATEGORIES.*';
 
-    const categoryInfo = (<any[][] | [][]>await this.sendQuerys([
+    return (<Category[][] | [][]>await this.sendQuerys([
       {
         query: `
           SELECT ${selectField}
           FROM CATEGORIES
-          LEFT JOIN TASKS USING(category_id)
-          WHERE CATEGORIES.category_id = ?
-          GROUP BY CATEGORIES.category_id;
+          WHERE category_id = ?;
         `,
         params: [category_id],
       },
     ]))[0][0];
+  }
 
-    if (categoryInfo?.task_ids) {
-      categoryInfo.task_ids = categoryInfo.task_ids.split(',');
-    }
+  /** 카테고리별 집안일 목록 조회 */
+  async findTasksByCategoryId(category_id: string, options?: SelectOptions): Promise<Task[] | []> {
+    const selectField = options?.select.toString() || 'TASKS.*';
 
-    return categoryInfo;
+    return (<Task[][] | [][]>await this.sendQuerys([
+      {
+        query: `
+          SELECT ${selectField}
+          FROM TASKS
+          WHERE category_id = ?;
+        `,
+        params: [category_id],
+      },
+    ]))[0];
   }
 
   /** 그룹별 카테고리 목록 조회 */
@@ -65,7 +73,7 @@ export class CategoriesRepository extends RdbmsRepository {
   }
 
   /** 카테고리 생성 */
-  async createCategory(options: { user_id: string; group_id: string; category_title: string }): Promise<CategoryInfo> {
+  async createCategory(options: { user_id: string; group_id: string; category_title: string }): Promise<Category> {
     const categoryId = 'CT' + this.generateId();
 
     await this.sendQuerys([
@@ -87,11 +95,11 @@ export class CategoriesRepository extends RdbmsRepository {
       },
     ]);
 
-    return <CategoryInfo>await this.findCategoryByCategoryId(categoryId);
+    return <Category>await this.findCategoryByCategoryId(categoryId);
   }
 
   /** 카테고리 수정 */
-  async updateCategory(options: { category_id: string; category_title: string }): Promise<CategoryInfo> {
+  async updateCategory(options: { category_id: string; category_title: string }): Promise<Category> {
     await this.sendQuerys([
       {
         query: `
@@ -103,7 +111,7 @@ export class CategoriesRepository extends RdbmsRepository {
       },
     ]);
 
-    return <CategoryInfo>await this.findCategoryByCategoryId(options.category_id);
+    return <Category>await this.findCategoryByCategoryId(options.category_id);
   }
 
   /** 카테고리 삭제 */

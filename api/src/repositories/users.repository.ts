@@ -1,31 +1,35 @@
-import { UserInfo } from '../interfaces/userInfo.interface';
+import { Group } from '../entities/group.entity';
+import { User } from '../entities/user.entity';
 import { RdbmsRepository, SelectOptions } from './base/rdbms.repository';
 
 export class UsersRepository extends RdbmsRepository {
   /** id별 회원 조회 */
-  async findUserInfoByUserId(user_id: string, options?: SelectOptions): Promise<UserInfo | undefined> {
+  async findUserInfoByUserId(user_id: string, options?: SelectOptions): Promise<[User, Group[]] | [undefined, []]> {
     const selectField =
       options?.select.toString() ||
-      'USERS.user_id, USERS.social_type, USERS.user_name, USERS.profile_image_url, USERS.profile_color, USERS.is_connect, GROUP_CONCAT(GROUPS_USERS.group_id) AS group_ids';
+      'USERS.user_id, USERS.social_type, USERS.user_name, USERS.profile_image_url, USERS.profile_color, USERS.is_connect';
 
-    const userInfo = (<any[][] | [][]>await this.sendQuerys([
+    const [groupUserList, groupList] = <any[][] | [][]>await this.sendQuerys([
       {
         query: `
           SELECT ${selectField}
           FROM USERS
-          LEFT JOIN GROUPS_USERS USING(user_id)
-          WHERE USERS.user_id = ?
-          GROUP BY USERS.user_id;
+          WHERE USERS.user_id = ?;
         `,
         params: [user_id],
       },
-    ]))[0][0];
+      {
+        query: `
+          SELECT GROUPS.group_id
+          FROM GROUPS
+          JOIN GROUPS_USERS USING (group_id)
+          WHERE GROUPS_USERS.user_id = ?;
+        `,
+        params: [user_id],
+      },
+    ]);
 
-    if (userInfo?.group_ids) {
-      userInfo.group_ids = userInfo.group_ids.split(',');
-    }
-
-    return userInfo;
+    return [groupUserList[0], groupList];
   }
 
   async updateUser(options: {
@@ -33,7 +37,7 @@ export class UsersRepository extends RdbmsRepository {
     user_name?: string;
     profile_image_url?: string;
     profile_color?: string;
-  }): Promise<UserInfo> {
+  }): Promise<[User, Group[]]> {
     await this.sendQuerys([
       {
         query: `
@@ -52,6 +56,6 @@ export class UsersRepository extends RdbmsRepository {
       },
     ]);
 
-    return <UserInfo>await this.findUserInfoByUserId(options.user_id);
+    return <[User, Group[]]>await this.findUserInfoByUserId(options.user_id);
   }
 }

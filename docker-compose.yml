@@ -22,6 +22,7 @@ services:
     env_file:
       - .env
     volumes:
+      - ./api/logs:/app/api/logs
       - /app/api/node_modules
   dobby_nginx:
     container_name: dobby_nginx
