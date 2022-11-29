@@ -71,23 +71,34 @@ export class TasksRepository extends RdbmsRepository {
 
     const selectField = options?.select.toString() || 'TASKS.*';
 
-    return (<Task[][] | [][]>await this.sendQuerys([
+    const taskList = (<any[][] | [][]>await this.sendQuerys([
       {
         query: `
-          SELECT ${selectField}
+          SELECT ${selectField},
+            JSON_ARRAYAGG(
+              JSON_OBJECT(
+                  'user_id', TASKS_USERS.user_id,
+                  'is_end', TASKS_USERS.is_end
+              )
+            ) AS task_user_list
           FROM TASKS
           LEFT JOIN TASKS_USERS USING(task_id)
           LEFT JOIN CATEGORIES USING(category_id)
-          WHERE (
-              TASKS.user_id = ?
-              OR TASKS_USERS.user_id = ?
-            )
-            AND CATEGORIES.group_id = ?
-            AND ${periodicalQuery[periodical]};
+          WHERE CATEGORIES.group_id = ?
+            AND ${periodicalQuery[periodical]}
+          GROUP BY TASKS.task_id;
         `,
-        params: [user_id, user_id, group_id],
+        params: [group_id],
       },
     ]))[0];
+
+    taskList.forEach(task => {
+      if (task.task_user_list) {
+        task.task_user_list = JSON.parse(task.task_user_list);
+      }
+    });
+
+    return taskList;
   }
 
   /** id별 집안일 대상자 조회 */

@@ -17,17 +17,13 @@ export class TasksService {
   ) {}
 
   /** id별 집안일 조회 */
-  private async getTaskByTaskId(user_id: string, task_id: string): Promise<{ task: Task; taskUserList: TaskUser[] }> {
+  private async getTaskByTaskId(user_id: string, task_id: string): Promise<Task> {
     const task = <Task>await this.tasksRepository.findTaskByTaskId(task_id);
     if (!task) {
       throw new NotFoundError(errorMessage.notFound);
     }
-    const taskUserList = await this.tasksRepository.findTaskUserByTaskId(task_id);
-    if (task.user_id !== user_id && taskUserList.filter(taskUser => taskUser.user_id === user_id).length === 0) {
-      throw new ForbiddenError(errorMessage.forbidden);
-    }
 
-    return { task, taskUserList };
+    return task;
   }
 
   /** 집안일 대상자 검증 */
@@ -44,7 +40,11 @@ export class TasksService {
 
   /** 집안일 대상자, 집안일 생성자 검증 */
   private async validateUserInTaskUserOrCreator(user_id: string, task_id: string): Promise<void> {
-    await this.getTaskByTaskId(user_id, task_id);
+    const task = await this.getTaskByTaskId(user_id, task_id);
+    const taskUserList = await this.tasksRepository.findTaskUserByTaskId(task_id);
+    if (task.user_id !== user_id && taskUserList.filter(taskUser => taskUser.user_id === user_id).length === 0) {
+      throw new ForbiddenError(errorMessage.forbidden);
+    }
   }
 
   /** 집안일 생성 */
@@ -81,7 +81,8 @@ export class TasksService {
 
   /** 집안일 조회 */
   async getTask(user_id: string, task_id: string): Promise<{ task: Task; task_user_list: TaskUser[] | [] }> {
-    const { task, taskUserList } = await this.getTaskByTaskId(user_id, task_id);
+    const task = await this.getTaskByTaskId(user_id, task_id);
+    const taskUserList = await this.tasksRepository.findTaskUserByTaskId(task_id);
 
     return { task, task_user_list: taskUserList };
   }

@@ -183,15 +183,6 @@ describe('Tasks', () => {
       expect(statusCode).toBe(404);
       expect(body.message).toBe(errorMessage.notFound);
     });
-
-    it('not user in task or creator', async () => {
-      const { statusCode, body } = await request
-        .get('/api/tasks/TS3030303030303030')
-        .set('authorization', `Bearer ${access_token2}`);
-
-      expect(statusCode).toBe(403);
-      expect(body.message).toBe(errorMessage.forbidden);
-    });
   });
 
   describe('update task user', () => {

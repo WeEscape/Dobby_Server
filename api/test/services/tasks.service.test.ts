@@ -135,12 +135,6 @@ describe('Tasks Service', () => {
         async () => await testTasksService.getTask('US1111111111111111', 'TS5555555555555555'),
       ).rejects.toThrowError(errorMessage.notFound);
     });
-
-    it('not user in task or creator', async () => {
-      await expect(
-        async () => await testTasksService.getTask('US1010101010101010', 'TS3030303030303030'),
-      ).rejects.toThrowError(errorMessage.forbidden);
-    });
   });
 
   describe('update task user', () => {

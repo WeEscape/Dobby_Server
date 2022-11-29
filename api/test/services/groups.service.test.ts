@@ -106,7 +106,6 @@ describe('Groups Service', () => {
     });
 
     it('group user', async () => {
-      console.log(await testGroupsRepository.sendQuerys([{ query: 'SELECT * FROM GROUPS' }]));
       await expect(
         async () => await testGroupsService.joinGroup('US1111111111111111', 'GR2020202020202020', '212121'),
       ).rejects.toThrowError(errorMessage.duplicate);

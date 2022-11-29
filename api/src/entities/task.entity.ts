@@ -13,4 +13,8 @@ export class Task {
   start_repeat_task_id: string | null;
   created_at: Date;
   updated_at: Date;
+  task_users?: {
+    user_id: string;
+    is_end: boolean;
+  };
 }
