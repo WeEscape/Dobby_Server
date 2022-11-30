@@ -168,8 +168,7 @@ describe('Tasks', () => {
       expect(body.data.task.excute_at).toBe(createTaskData.successWithoutRepeat.excute_at);
       expect(body.data.task.start_repeat_task_id).toBeNull();
 
-      body.data.task_user_list.forEach((task_user: TaskUser) => {
-        expect(task_user.task_id).toBe('TS3030303030303030');
+      body.data.task.task_user_list?.forEach((task_user: TaskUser) => {
         expect(createTaskData.successWithoutRepeat.add_user_ids).toContain(task_user.user_id);
         expect(typeof task_user.is_end).toBe('number');
       });
@@ -194,13 +193,11 @@ describe('Tasks', () => {
 
       expect(statusCode).toBe(200);
 
-      const taskUserList = <TaskUser[]>await testTasksRepository.findTaskUserByTaskId('TS3030303030303030');
+      const task = <Task>await testTasksRepository.findTaskByTaskId('TS3030303030303030');
 
-      taskUserList.forEach(taskUser => {
-        expect(taskUser.task_id).toBe('TS3030303030303030');
-
-        if (taskUser.user_id === 'US1111111111111111') {
-          expect(taskUser.is_end).toBe(1);
+      task.task_user_list?.forEach(task_user => {
+        if (task_user.user_id === 'US1111111111111111') {
+          expect(task_user.is_end).toBe(1);
         }
       });
     });
@@ -251,8 +248,7 @@ describe('Tasks', () => {
       expect(body.data.task.excute_at).toBe(createTaskData.successWithoutRepeat.excute_at);
       expect(body.data.task.start_repeat_task_id).toBeNull();
 
-      body.data.task_user_list.forEach((task_user: TaskUser) => {
-        expect(task_user.task_id).toBe('TS3030303030303030');
+      body.data.task.task_user_list?.forEach((task_user: TaskUser) => {
         expect(updateTaskData.success.delete_user_ids).not.toContain(task_user.user_id);
       });
     });

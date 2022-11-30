@@ -41,16 +41,28 @@ export class TasksRepository extends RdbmsRepository {
   async findTaskByTaskId(task_id: string, options?: SelectOptions): Promise<Task | undefined> {
     const selectField = options?.select.toString() || 'TASKS.*';
 
-    const task = (<Task[][] | [][]>await this.sendQuerys([
+    const task = (<any[][] | [][]>await this.sendQuerys([
       {
         query: `
-          SELECT ${selectField}
+          SELECT ${selectField},
+            JSON_ARRAYAGG(
+              JSON_OBJECT(
+                  'user_id', TASKS_USERS.user_id,
+                  'is_end', TASKS_USERS.is_end
+              )
+            ) AS task_user_list
           FROM TASKS
-          WHERE TASKS.task_id = ?;
+          LEFT JOIN TASKS_USERS USING(task_id)
+          WHERE TASKS.task_id = ?
+          GROUP BY TASKS.task_id;
         `,
         params: [task_id],
       },
     ]))[0][0];
+
+    if (task?.task_user_list) {
+      task.task_user_list = JSON.parse(task.task_user_list);
+    }
 
     return task;
   }
@@ -99,22 +111,6 @@ export class TasksRepository extends RdbmsRepository {
     });
 
     return taskList;
-  }
-
-  /** id별 집안일 대상자 조회 */
-  async findTaskUserByTaskId(task_id: string, options?: SelectOptions): Promise<TaskUser[] | []> {
-    const selectField = options?.select.toString() || 'TASKS_USERS.*';
-
-    return (<TaskUser[][] | [][]>await this.sendQuerys([
-      {
-        query: `
-          SELECT ${selectField}
-          FROM TASKS_USERS
-          WHERE task_id = ?;
-        `,
-        params: [task_id],
-      },
-    ]))[0];
   }
 
   /** 집안일 생성 */

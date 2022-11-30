@@ -36,6 +36,10 @@ describe('Tasks Repository', () => {
       expect(task.task_title).toBe(createTaskData.successWithoutRepeat.task_title);
       expect(task.excute_at.toISOString()).toBe(createTaskData.successWithoutRepeat.excute_at);
       expect(task.start_repeat_task_id).toBeNull();
+      task.task_user_list?.every(task_user => {
+        expect(createTaskData.successWithoutRepeat.add_user_ids).toContain(task_user.user_id);
+        expect(task_user.is_end).toBe(0);
+      });
     });
 
     it('success with repeat', async () => {
@@ -51,6 +55,10 @@ describe('Tasks Repository', () => {
       expect(task.end_repeat_at?.toISOString()).toBe(createTaskData.successWithRepeat.end_repeat_at);
       expect(task.excute_at.toISOString()).toBe(createTaskData.successWithRepeat.excute_at);
       expect(task.start_repeat_task_id).toEqual('TS3131313131313131');
+      task.task_user_list?.every(task_user => {
+        expect(createTaskData.successWithRepeat.add_user_ids).toContain(task_user.user_id);
+        expect(task_user.is_end).toBe(0);
+      });
     });
   });
 
@@ -143,18 +151,6 @@ describe('Tasks Repository', () => {
     });
   });
 
-  describe('find task user by task id', () => {
-    it('task user list', async () => {
-      const taskUserList = <TaskUser[]>await testTasksRepository.findTaskUserByTaskId('TS3030303030303030');
-
-      taskUserList.forEach(taskUser => {
-        expect(taskUser.task_id).toBe('TS3030303030303030');
-        expect(createTaskData.successWithoutRepeat.add_user_ids).toContain(taskUser.user_id);
-        expect(typeof taskUser.is_end).toBe('number');
-      });
-    });
-  });
-
   describe('update task user', () => {
     it('success', async () => {
       await testTasksRepository.updateTaskUser({
@@ -163,13 +159,11 @@ describe('Tasks Repository', () => {
         is_end: 1,
       });
 
-      const taskUserList = <TaskUser[]>await testTasksRepository.findTaskUserByTaskId('TS3030303030303030');
+      const task = <Task>await testTasksRepository.findTaskByTaskId('TS3030303030303030');
 
-      taskUserList.forEach(taskUser => {
-        expect(taskUser.task_id).toBe('TS3030303030303030');
-
-        if (taskUser.user_id === 'US1111111111111111') {
-          expect(taskUser.is_end).toBe(1);
+      task.task_user_list?.forEach(task_user => {
+        if (task_user.user_id === 'US1111111111111111') {
+          expect(task_user.is_end).toBe(1);
         }
       });
     });
@@ -183,11 +177,8 @@ describe('Tasks Repository', () => {
 
       expect(task.task_title).toBe(updateTaskData.success.task_title);
 
-      const taskUserList = <TaskUser[]>await testTasksRepository.findTaskUserByTaskId('TS3030303030303030');
-
-      taskUserList.forEach(taskUser => {
-        expect(taskUser.task_id).toBe('TS3030303030303030');
-        expect(updateTaskData.success.delete_user_ids).not.toContain(taskUser.user_id);
+      task.task_user_list?.forEach(task_user => {
+        expect(updateTaskData.success.delete_user_ids).not.toContain(task_user.user_id);
       });
     });
   });

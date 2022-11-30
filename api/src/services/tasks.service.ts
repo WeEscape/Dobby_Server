@@ -22,18 +22,15 @@ export class TasksService {
     if (!task) {
       throw new NotFoundError(errorMessage.notFound);
     }
+    await this.categoriesService.validateUserInCategoryGroup(user_id, task.category_id);
 
     return task;
   }
 
   /** 집안일 대상자 검증 */
   private async validateUserInTaskUser(user_id: string, task_id: string): Promise<void> {
-    const task = <Task>await this.tasksRepository.findTaskByTaskId(task_id);
-    if (!task) {
-      throw new NotFoundError(errorMessage.notFound);
-    }
-    const taskUserList = await this.tasksRepository.findTaskUserByTaskId(task_id);
-    if (taskUserList.filter(taskUser => taskUser.user_id === user_id).length === 0) {
+    const task = await this.getTaskByTaskId(user_id, task_id);
+    if (task.task_user_list?.filter(task_user => task_user.user_id === user_id).length === 0) {
       throw new ForbiddenError(errorMessage.forbidden);
     }
   }
@@ -41,17 +38,16 @@ export class TasksService {
   /** 집안일 대상자, 집안일 생성자 검증 */
   private async validateUserInTaskUserOrCreator(user_id: string, task_id: string): Promise<void> {
     const task = await this.getTaskByTaskId(user_id, task_id);
-    const taskUserList = await this.tasksRepository.findTaskUserByTaskId(task_id);
-    if (task.user_id !== user_id && taskUserList.filter(taskUser => taskUser.user_id === user_id).length === 0) {
+    if (
+      task.user_id !== user_id &&
+      task.task_user_list?.filter(task_user => task_user.user_id === user_id).length === 0
+    ) {
       throw new ForbiddenError(errorMessage.forbidden);
     }
   }
 
   /** 집안일 생성 */
-  async createTask(
-    user_id: string,
-    createTaskDto: CreateTaskDto,
-  ): Promise<{ task: Task; task_user_list: TaskUser[] | [] }> {
+  async createTask(user_id: string, createTaskDto: CreateTaskDto): Promise<{ task: Task }> {
     await this.categoriesService.validateUserInCategoryGroup(user_id, createTaskDto.category_id);
     if (createTaskDto?.add_user_ids) {
       for await (const user_id of createTaskDto.add_user_ids) {
@@ -60,9 +56,8 @@ export class TasksService {
     }
 
     const task = await this.tasksRepository.createTask({ user_id, ...createTaskDto });
-    const taskUserList = await this.tasksRepository.findTaskUserByTaskId(task.task_id);
 
-    return { task, task_user_list: taskUserList };
+    return { task };
   }
 
   /** 집안일 목록 조회 */
@@ -80,25 +75,19 @@ export class TasksService {
   }
 
   /** 집안일 조회 */
-  async getTask(user_id: string, task_id: string): Promise<{ task: Task; task_user_list: TaskUser[] | [] }> {
+  async getTask(user_id: string, task_id: string): Promise<{ task: Task }> {
     const task = await this.getTaskByTaskId(user_id, task_id);
-    const taskUserList = await this.tasksRepository.findTaskUserByTaskId(task_id);
 
-    return { task, task_user_list: taskUserList };
+    return { task };
   }
 
   /** 집안일 수정 */
-  async updateTask(
-    user_id: string,
-    task_id: string,
-    updateTaskDto: UpdateTaskDto,
-  ): Promise<{ task: Task; task_user_list: TaskUser[] | [] }> {
+  async updateTask(user_id: string, task_id: string, updateTaskDto: UpdateTaskDto): Promise<{ task: Task }> {
     await this.validateUserInTaskUserOrCreator(user_id, task_id);
 
     const task = await this.tasksRepository.updateTask({ task_id, ...updateTaskDto });
-    const taskUserList = await this.tasksRepository.findTaskUserByTaskId(task_id);
 
-    return { task, task_user_list: taskUserList };
+    return { task };
   }
 
   /** 집안일 삭제 */

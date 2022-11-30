@@ -1,3 +1,5 @@
+import { TaskUser } from './taskUser.entity';
+
 export type RepeatCycle = '1D' | '1W' | '1M';
 
 export class Task {
@@ -13,8 +15,5 @@ export class Task {
   start_repeat_task_id: string | null;
   created_at: Date;
   updated_at: Date;
-  task_users?: {
-    user_id: string;
-    is_end: boolean;
-  };
+  task_user_list?: TaskUser[] | null;
 }

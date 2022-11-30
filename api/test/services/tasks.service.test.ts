@@ -1,3 +1,4 @@
+import { Task } from '../../src/entities/task.entity';
 import { TaskUser } from '../../src/entities/taskUser.entity';
 import { errorMessage } from '../../src/utils/message.util';
 import { registerData } from '../datas/auth/register.data';
@@ -123,8 +124,7 @@ describe('Tasks Service', () => {
       expect(result.task.excute_at.toISOString()).toBe(createTaskData.successWithoutRepeat.excute_at);
       expect(result.task.start_repeat_task_id).toBeNull();
 
-      result.task_user_list.forEach(task_user => {
-        expect(task_user.task_id).toBe('TS3030303030303030');
+      result.task.task_user_list?.forEach(task_user => {
         expect(createTaskData.successWithoutRepeat.add_user_ids).toContain(task_user.user_id);
         expect(typeof task_user.is_end).toBe('number');
       });
@@ -141,13 +141,11 @@ describe('Tasks Service', () => {
     it('success', async () => {
       await testTasksService.updateTaskUser('US1111111111111111', 'TS3030303030303030', 1);
 
-      const taskUserList = <TaskUser[]>await testTasksRepository.findTaskUserByTaskId('TS3030303030303030');
+      const task = <Task>await testTasksRepository.findTaskByTaskId('TS3030303030303030');
 
-      taskUserList.forEach(taskUser => {
-        expect(taskUser.task_id).toBe('TS3030303030303030');
-
-        if (taskUser.user_id === 'US1111111111111111') {
-          expect(taskUser.is_end).toBe(1);
+      task.task_user_list?.forEach(task_user => {
+        if (task_user.user_id === 'US1111111111111111') {
+          expect(task_user.is_end).toBe(1);
         }
       });
     });
@@ -180,8 +178,7 @@ describe('Tasks Service', () => {
       expect(result.task.excute_at.toISOString()).toBe(createTaskData.successWithoutRepeat.excute_at);
       expect(result.task.start_repeat_task_id).toBeNull();
 
-      result.task_user_list.forEach(task_user => {
-        expect(task_user.task_id).toBe('TS3030303030303030');
+      result.task.task_user_list?.forEach(task_user => {
         expect(updateTaskData.success.delete_user_ids).not.toContain(task_user.user_id);
       });
     });
