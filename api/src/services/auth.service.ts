@@ -25,7 +25,7 @@ export class AuthService {
     let user: User;
 
     if (registerDto.social_type === 'apple') {
-      const apple_refresh_token = await this.socialService.getAppleRefreshToken();
+      const apple_refresh_token = await this.socialService.getAppleRefreshToken(<string>registerDto.authorize_code);
 
       user = await this.authRepository.createUser({ ...registerDto, apple_refresh_token });
     } else {
