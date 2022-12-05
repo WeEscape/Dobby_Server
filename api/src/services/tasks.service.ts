@@ -60,8 +60,8 @@ export class TasksService {
     return { task };
   }
 
-  /** 집안일 목록 조회 */
-  async getTasks(
+  /** 그룹별 집안일 목록 조회 */
+  async getTasksByGroupId(
     user_id: string,
     group_id: string,
     date: string,
@@ -69,7 +69,21 @@ export class TasksService {
   ): Promise<{ task_list: Task[] | [] }> {
     await this.groupsService.validateUserInGroup(user_id, group_id);
 
-    const taskList = await this.tasksRepository.findTasksByUserIdAndGroupId(user_id, group_id, date, periodical);
+    const taskList = await this.tasksRepository.findTasksByGroupId(group_id, date, periodical);
+
+    return { task_list: taskList };
+  }
+
+  /** 개인별 집안일 목록 조회 */
+  async getTasksByUserId(
+    user_id: string,
+    group_id: string,
+    date: string,
+    periodical: Periodical,
+  ): Promise<{ task_list: Task[] | [] }> {
+    await this.groupsService.validateUserInGroup(user_id, group_id);
+
+    const taskList = await this.tasksRepository.findTasksByUserId(user_id, group_id, date, periodical);
 
     return { task_list: taskList };
   }

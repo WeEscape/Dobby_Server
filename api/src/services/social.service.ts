@@ -25,16 +25,18 @@ export class SocialService {
   }
 
   private async createAppleClientSecret(): Promise<string> {
-    return jwt.sign({}, <string>config.social.apple.privateKey, <Object>config.social.apple.clientClient);
+    return jwt.sign({}, <string>config.social.apple.privateKey, <Object>config.social.apple.signOption);
   }
 
   private async withdrawFromApple(refresh_token: string): Promise<void> {
     try {
+      const client_secret = await this.createAppleClientSecret();
+
       axios.post(
         'https://appleid.apple.com/auth/revoke',
         {
           client_id: config.social.apple.clientId,
-          client_secret: this.createAppleClientSecret(),
+          client_secret,
           token: refresh_token,
           token_type_hint: 'refresh_token',
         },
@@ -52,11 +54,13 @@ export class SocialService {
 
   async getAppleRefreshToken(authorization_code: string): Promise<string> {
     try {
+      const client_secret = await this.createAppleClientSecret();
+
       const { data } = await axios.post(
         'https://appleid.apple.com/auth/token',
         {
           client_id: config.social.apple.clientId,
-          client_secret: this.createAppleClientSecret(),
+          client_secret,
           code: authorization_code,
           grant_type: 'authorization_code',
         },
@@ -66,9 +70,11 @@ export class SocialService {
           },
         },
       );
+      console.log(data);
 
       return data.refresh_token;
     } catch (err) {
+      console.log(err);
       logger.error(`APPLE: ${err}`);
       throw new BadGatewayError('apple');
     }

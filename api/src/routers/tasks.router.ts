@@ -23,13 +23,27 @@ export const tasksRouter = (tasksService: TasksService) => {
     }
   });
 
-  /** 집안일 목록 조회 */
+  /** 그룹별 집안일 목록 조회 */
   router.get('/group/:group_id/:date/:periodical', async (req, res, next) => {
     try {
       const user_id = req.user?.user_id;
       const { group_id, date, periodical } = req.params;
 
-      const result = await tasksService.getTasks(user_id, group_id, date, <Periodical>periodical);
+      const result = await tasksService.getTasksByGroupId(user_id, group_id, date, <Periodical>periodical);
+
+      return res.status(200).json(responseInterceptor(req, result));
+    } catch (err) {
+      return next(err);
+    }
+  });
+
+  /** 회원별 집안일 목록 조회 */
+  router.get('/user/:group_id/:date/:periodical', async (req, res, next) => {
+    try {
+      const user_id = req.user?.user_id;
+      const { group_id, date, periodical } = req.params;
+
+      const result = await tasksService.getTasksByUserId(user_id, group_id, date, <Periodical>periodical);
 
       return res.status(200).json(responseInterceptor(req, result));
     } catch (err) {

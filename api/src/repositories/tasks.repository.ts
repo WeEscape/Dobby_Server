@@ -67,9 +67,8 @@ export class TasksRepository extends RdbmsRepository {
     return task;
   }
 
-  /** 그룹, 회원별 집안일 목록 조회 */
-  async findTasksByUserIdAndGroupId(
-    user_id: string,
+  /** 그룹별 집안일 목록 조회 */
+  async findTasksByGroupId(
     group_id: string,
     date: string,
     periodical: Periodical,
@@ -101,6 +100,53 @@ export class TasksRepository extends RdbmsRepository {
           GROUP BY TASKS.task_id;
         `,
         params: [group_id],
+      },
+    ]))[0];
+
+    taskList.forEach(task => {
+      if (task.task_user_list) {
+        task.task_user_list = JSON.parse(task.task_user_list);
+      }
+    });
+
+    return taskList;
+  }
+
+  /** 회원별 집안일 목록 조회 */
+  async findTasksByUserId(
+    user_id: string,
+    group_id: string,
+    date: string,
+    periodical: Periodical,
+    options?: SelectOptions,
+  ): Promise<Task[] | []> {
+    const periodicalQuery = {
+      daily: `DATE_FORMAT(TASKS.excute_at, '%Y%m%d') = DATE_FORMAT('${date}', '%Y%m%d')`,
+      weekly: `YEARWEEK(TASKS.excute_at) = YEARWEEK('${date}')`,
+      monthly: `DATE_FORMAT(TASKS.excute_at, '%Y%m') = DATE_FORMAT('${date}', '%Y%m')`,
+    };
+
+    const selectField = options?.select.toString() || 'TASKS.*';
+
+    const taskList = (<any[][] | [][]>await this.sendQuerys([
+      {
+        query: `
+          SELECT ${selectField},
+            JSON_ARRAYAGG(
+              JSON_OBJECT(
+                  'user_id', TASKS_USERS.user_id,
+                  'is_end', TASKS_USERS.is_end
+              )
+            ) AS task_user_list
+          FROM TASKS
+          LEFT JOIN TASKS_USERS USING(task_id)
+          LEFT JOIN CATEGORIES USING(category_id)
+          WHERE CATEGORIES.group_id = ?
+            AND ${periodicalQuery[periodical]}
+            AND TASKS_USERS.user_id = ?
+          GROUP BY TASKS.task_id;
+        `,
+        params: [group_id, user_id],
       },
     ]))[0];
 
