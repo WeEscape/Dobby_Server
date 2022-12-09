@@ -59,6 +59,22 @@ describe('Groups Repository', () => {
     });
   });
 
+  describe('find group by invite code', () => {
+    it('group', async () => {
+      const group = <Group>await testGroupsRepository.findGroupInfoByInviteCode('212121');
+
+      expect(group.group_id).toBe('GR2020202020202020');
+      expect(group.group_title).toBe('group1');
+      expect(group.invite_code.length).toBe(6);
+    });
+
+    it('undefined', async () => {
+      const group = <undefined>await testGroupsRepository.findGroupInfoByInviteCode('000000');
+
+      expect(group).toBeUndefined();
+    });
+  });
+
   describe('find group user by group id', () => {
     it('group', async () => {
       const userList = <User[]>await testGroupsRepository.findGroupUserByGroupId('GR2020202020202020');

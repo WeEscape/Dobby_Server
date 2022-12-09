@@ -57,7 +57,12 @@ describe('Tasks Service', () => {
 
   describe('get tasks', () => {
     it('daily task list', async () => {
-      const result = await testTasksService.getTasks('US1111111111111111', 'GR2020202020202020', '2022-11-19', 'daily');
+      const result = await testTasksService.getTasksByUserId(
+        'US1111111111111111',
+        'GR2020202020202020',
+        '2022-11-19',
+        'daily',
+      );
 
       result.task_list.forEach(task => {
         expect(typeof task.task_id).toBe('string');
@@ -68,7 +73,7 @@ describe('Tasks Service', () => {
     });
 
     it('weekly task list', async () => {
-      const result = await testTasksService.getTasks(
+      const result = await testTasksService.getTasksByUserId(
         'US1111111111111111',
         'GR2020202020202020',
         '2022-11-19',
@@ -85,7 +90,7 @@ describe('Tasks Service', () => {
     });
 
     it('monthly task list', async () => {
-      const result = await testTasksService.getTasks(
+      const result = await testTasksService.getTasksByUserId(
         'US1111111111111111',
         'GR2020202020202020',
         '2022-11-19',
@@ -102,13 +107,15 @@ describe('Tasks Service', () => {
 
     it('not found group', async () => {
       await expect(
-        async () => await testTasksService.getTasks('US1111111111111111', 'GR4444444444444444', '2022-11-19', 'daily'),
+        async () =>
+          await testTasksService.getTasksByUserId('US1111111111111111', 'GR4444444444444444', '2022-11-19', 'daily'),
       ).rejects.toThrowError(errorMessage.notFound);
     });
 
     it('not group user', async () => {
       await expect(
-        async () => await testTasksService.getTasks('US1010101010101010', 'GR2020202020202020', '2022-11-19', 'daily'),
+        async () =>
+          await testTasksService.getTasksByUserId('US1010101010101010', 'GR2020202020202020', '2022-11-19', 'daily'),
       ).rejects.toThrowError(errorMessage.forbidden);
     });
   });

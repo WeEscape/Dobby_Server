@@ -69,24 +69,17 @@ export class GroupsService {
   }
 
   /** 그룹 가입 */
-  async joinGroup(
-    user_id: string,
-    group_id: string,
-    invite_code: string,
-  ): Promise<{ group: Group; group_user_list: User[] }> {
-    let group = await this.groupsRepository.findGroupInfoByGroupId(group_id);
+  async joinGroup(user_id: string, invite_code: string): Promise<{ group: Group; group_user_list: User[] }> {
+    let group = await this.groupsRepository.findGroupInfoByInviteCode(invite_code);
     if (!group) {
-      throw new NotFoundError(errorMessage.notFound);
-    }
-    if (group.invite_code !== invite_code) {
       throw new BadRequestError(errorMessage.invalidParameter('invite_code'));
     }
-    const existGroupUserList = await this.groupsRepository.findGroupUserByGroupId(group_id);
+    const existGroupUserList = await this.groupsRepository.findGroupUserByGroupId(group.group_id);
     if (existGroupUserList.some(user => user.user_id === user_id)) {
       throw new BadRequestError(errorMessage.duplicate);
     }
 
-    const groupUserList = await this.groupsRepository.createGroupUser({ group_id, user_id });
+    const groupUserList = await this.groupsRepository.createGroupUser({ group_id: group.group_id, user_id });
 
     return { group, group_user_list: groupUserList };
   }

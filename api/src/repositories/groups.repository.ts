@@ -37,6 +37,22 @@ export class GroupsRepository extends RdbmsRepository {
     ]))[0][0];
   }
 
+  /** 그룹 id별 그룹 조회 */
+  async findGroupInfoByInviteCode(invite_code: string, options?: SelectOptions): Promise<Group | undefined> {
+    const selectField = options?.select.toString() || 'GROUPS.*';
+
+    return (<Group[][] | [][]>await this.sendQuerys([
+      {
+        query: `
+          SELECT ${selectField}
+          FROM GROUPS
+          WHERE GROUPS.invite_code = ?;
+        `,
+        params: [invite_code],
+      },
+    ]))[0][0];
+  }
+
   async findGroupUserByGroupId(group_id: string, options?: SelectOptions): Promise<User[] | []> {
     const selectField =
       options?.select.toString() || 'USERS.user_id, USERS.user_name, USERS.profile_image_url, USERS.profile_color';

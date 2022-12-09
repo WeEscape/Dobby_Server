@@ -154,9 +154,9 @@ describe('Groups', () => {
   describe('join group', () => {
     it('invalid invite code', async () => {
       const { statusCode, body } = await request
-        .post('/api/groups/GR2020202020202020/user')
+        .post('/api/groups/user')
         .set('authorization', `Bearer ${access_token2}`)
-        .send({ invite_code: '333333' });
+        .send({ invite_code: '000000' });
 
       expect(statusCode).toBe(400);
       expect(body.message).toBe(errorMessage.invalidParameter('invite_code'));
@@ -164,7 +164,7 @@ describe('Groups', () => {
 
     it('success', async () => {
       const { statusCode, body } = await request
-        .post('/api/groups/GR2020202020202020/user')
+        .post('/api/groups/user')
         .set('authorization', `Bearer ${access_token2}`)
         .send({ invite_code: '212121' });
 
@@ -175,7 +175,7 @@ describe('Groups', () => {
 
     it('parameter error', async () => {
       const { statusCode, body } = await request
-        .post('/api/groups/GR2020202020202020/user')
+        .post('/api/groups/user')
         .set('authorization', `Bearer ${access_token2}`)
         .send({ invite_code: 123 });
 
@@ -183,19 +183,9 @@ describe('Groups', () => {
       expect(body.message).toBe(errorMessage.invalidParameter('invite_code'));
     });
 
-    it('not found group', async () => {
-      const { statusCode, body } = await request
-        .post('/api/groups/GR4444444444444444/user')
-        .set('authorization', `Bearer ${access_token2}`)
-        .send({ invite_code: '444444' });
-
-      expect(statusCode).toBe(404);
-      expect(body.message).toBe(errorMessage.notFound);
-    });
-
     it('group user', async () => {
       const { statusCode, body } = await request
-        .post('/api/groups/GR2020202020202020/user')
+        .post('/api/groups/user')
         .set('authorization', `Bearer ${access_token1}`)
         .send({ invite_code: '212121' });
 

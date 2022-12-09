@@ -87,28 +87,22 @@ describe('Groups Service', () => {
 
   describe('join group', () => {
     it('success', async () => {
-      const result = await testGroupsService.joinGroup('US1010101010101010', 'GR2020202020202020', '212121');
+      const result = await testGroupsService.joinGroup('US1010101010101010', '212121');
 
       expect(result.group.group_id).toBe('GR2020202020202020');
       expect(result.group_user_list.some(user => user.user_id === 'US1010101010101010')).toBeTruthy();
     });
 
-    it('not found group', async () => {
-      await expect(
-        async () => await testGroupsService.joinGroup('US1010101010101010', 'GR4444444444444444', '212121'),
-      ).rejects.toThrowError(errorMessage.notFound);
-    });
-
     it('invalid invite code', async () => {
-      await expect(
-        async () => await testGroupsService.joinGroup('US1010101010101010', 'GR2020202020202020', '777777'),
-      ).rejects.toThrowError(errorMessage.invalidParameter('invite_code'));
+      await expect(async () => await testGroupsService.joinGroup('US1010101010101010', '777777')).rejects.toThrowError(
+        errorMessage.invalidParameter('invite_code'),
+      );
     });
 
     it('group user', async () => {
-      await expect(
-        async () => await testGroupsService.joinGroup('US1111111111111111', 'GR2020202020202020', '212121'),
-      ).rejects.toThrowError(errorMessage.duplicate);
+      await expect(async () => await testGroupsService.joinGroup('US1111111111111111', '212121')).rejects.toThrowError(
+        errorMessage.duplicate,
+      );
     });
   });
 

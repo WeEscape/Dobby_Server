@@ -83,7 +83,7 @@ export class TasksService {
   ): Promise<{ task_list: Task[] | [] }> {
     await this.groupsService.validateUserInGroup(user_id, group_id);
 
-    const taskList = await this.tasksRepository.findTasksByUserId(user_id, group_id, date, periodical);
+    const taskList = await this.tasksRepository.findTasksByUserIdAndGroupId(user_id, group_id, date, periodical);
 
     return { task_list: taskList };
   }

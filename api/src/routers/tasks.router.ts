@@ -38,10 +38,9 @@ export const tasksRouter = (tasksService: TasksService) => {
   });
 
   /** 회원별 집안일 목록 조회 */
-  router.get('/user/:group_id/:date/:periodical', async (req, res, next) => {
+  router.get('/user/:user_id/:group_id/:date/:periodical', async (req, res, next) => {
     try {
-      const user_id = req.user?.user_id;
-      const { group_id, date, periodical } = req.params;
+      const { user_id, group_id, date, periodical } = req.params;
 
       const result = await tasksService.getTasksByUserId(user_id, group_id, date, <Periodical>periodical);
 

@@ -113,7 +113,7 @@ export class TasksRepository extends RdbmsRepository {
   }
 
   /** 회원별 집안일 목록 조회 */
-  async findTasksByUserId(
+  async findTasksByUserIdAndGroupId(
     user_id: string,
     group_id: string,
     date: string,

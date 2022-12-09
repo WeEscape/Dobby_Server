@@ -51,12 +51,11 @@ export const groupsRouter = (groupsService: GroupsService) => {
   });
 
   /** 그룹 가입 */
-  router.post('/:group_id/user', validateBody(JoinGroupDto), async (req, res, next) => {
+  router.post('/user', validateBody(JoinGroupDto), async (req, res, next) => {
     try {
       const user_id = req.user?.user_id;
-      const group_id = req.params.group_id;
 
-      const result = await groupsService.joinGroup(user_id, group_id, req.body.invite_code);
+      const result = await groupsService.joinGroup(user_id, req.body.invite_code);
 
       return res.status(200).json(responseInterceptor(req, result));
     } catch (err) {
